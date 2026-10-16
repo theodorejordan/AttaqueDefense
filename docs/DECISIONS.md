@@ -26,6 +26,14 @@ Rule clarifications go in `RULES.md`, not here.
 - **Bots** (2026-10-16): a bot is a seat controlled by the server, which picks among the legal actions using the same
   filtered view as a human. Random bot first (also used for automated game simulations), heuristic bot later.
   The owner has requirements for bots: discuss them before implementing.
+  - Long-term goal: run bot-vs-bot simulations to find the best moves depending on the game state
+    ([Monte Carlo](https://en.wikipedia.org/wiki/Monte_Carlo_method)). The engine must stay fast, headless and reproducible (seeded RNG).
+  - Difficulty levels: random, beginner, confirmed, expert, godlike. All bots share one interface
+    (filtered view in → action out), so levels plug in without engine changes.
+    **No bot ever cheats**: "godlike" is just very strong, using only its filtered view.
+  - Bots have names. Faces from photos: postponed (privacy in a public repo, weight on mobile data).
+- **Turn in two engine steps** (2026-10-16): `draw`, then `play(action, target)`. The drawn card stays pending in between
+  (also covers a disconnect mid-turn). Matches the owner's UI flow: card shown beside the deck → choose action → choose player.
 
 ## Access / networking (2026-10-16)
 
@@ -50,6 +58,15 @@ Two use cases, two commands:
 - **Desktop first**, then a mobile pass. Use flexible layouts (flexbox/grid, relative units) from the start so the mobile pass is an adjustment, not a rewrite.
 - Keep downloads light (players may be on mobile data): prefer CSS/SVG cards or small compressed images.
 - Visual style: to be discussed with mockups before building the desktop UI (roadmap step 4).
+  Owner's input so far (2026-10-16):
+  - **Minimalist cards**. References:
+    [Iota playing cards](https://www.creativebloq.com/graphic-design/iota-playing-cards-get-minimalist-makeover-5132595),
+    [Contours playing cards](https://www.maxplayingcards.com/en/2016/09/11/contours-playing-cards-a-double-line-that-hides-many-secrets/),
+    [UNO Minimalista](https://www.inverse.com/input/design/uno's-had-a-minimalist-design-overhaul-google-will-love-minimalista-games).
+  - Color as meaning: maybe **red for attack**, **blue for shield**.
+  - **Layout** (desktop and mobile): each player sees **their own cards in front of them** (bottom of the screen),
+    the **side pot and draw deck in the middle**, and the **other players around the middle in playing order**.
+    No table drawn: just names with their cards.
 
 ## Repository and versioning (2026-10-16)
 
