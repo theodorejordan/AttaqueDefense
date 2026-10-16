@@ -19,6 +19,12 @@ import {
 } from './state.ts';
 
 const ACTION_TYPES: readonly ActionType[] = ['attack', 'defense', 'munition'];
+/** The public information needed to know who can be targeted. */
+export interface Seat {
+  id: PlayerId;
+  eliminated: boolean;
+  munitionCount: number;
+}
 
 /** Single entry point used by the server, bots and simulations. */
 export function applyCommand(state: GameState, playerId: PlayerId, command: Command): Result {
@@ -67,20 +73,31 @@ export function draw(state: GameState, playerId: PlayerId): Result {
   return { state: next, events };
 }
 
-/** Every legal play for `actor`, given who is still in the game. */
-export function playsFor(actor: PlayerId, alivePlayers: readonly PlayerId[]): Play[] {
-  // A hunter is already eliminated, so they are never in `alivePlayers`:
-  // this automatically forbids giving themselves a shield or a munition (RULES 8.2).
+/** Every legal play for `actor`. Only players still in the game can be targeted. */
+export function playsFor(actor: PlayerId, seats: readonly Seat[], maxMunitions: number): Play[] {
+  // A hunter is already eliminated, so they can never target themselves (RULES 8.2).
+  // Defense is always possible, so there is always at least one legal play.
+  const alive = seats.filter((seat) => !seat.eliminated);
   return ACTION_TYPES.flatMap((type) =>
-    alivePlayers
-      .filter((target) => type !== 'attack' || target !== actor)
-      .map((target) => ({ type, target })),
+    alive.filter((seat) => canTarget(type, actor, seat, maxMunitions)).map((seat) => ({ type, target: seat.id })),
   );
+}
+
+function canTarget(type: ActionType, actor: PlayerId, seat: Seat, maxMunitions: number): boolean {
+  switch (type) {
+    case 'attack':
+      return seat.id !== actor;
+    case 'defense':
+      return true;
+    case 'munition':
+      return seat.munitionCount < maxMunitions;
+  }
 }
 
 export function legalPlays(state: GameState, playerId: PlayerId): Play[] {
   if (state.phase !== 'playing' || state.turn?.player !== playerId || !state.turn.drawn) return [];
-  return playsFor(playerId, alivePlayerIds(state));
+  const seats = state.players.map((p) => ({ id: p.id, eliminated: p.eliminated, munitionCount: p.munitions.length }));
+  return playsFor(playerId, seats, state.settings.maxMunitions);
 }
 
 function alivePlayerIds(state: GameState): PlayerId[] {

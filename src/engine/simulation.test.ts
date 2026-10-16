@@ -5,15 +5,15 @@ import { randomBot } from './bots/random.ts';
 import { type Card, cardKey, sumValues } from './cards.ts';
 import { MAX_LIFE_CARDS } from './damage.ts';
 import { createRng, pick } from './rng.ts';
-import { createGame, hasChosenShield } from './setup.ts';
-import { type DamagePreference, type GameState, type HunterRule, OutOfCardsError, type PlayerId } from './state.ts';
+import { allowedDeckCounts, createGame, hasChosenShield } from './setup.ts';
+import type { DamagePreference, GameState, HunterRule, PlayerId } from './state.ts';
 import { viewFor } from './view.ts';
 
 const GAMES = 200;
 const MAX_COMMANDS = 5000;
 const PREFERENCES: DamagePreference[] = ['fewestCards', 'lowestMax', 'normal'];
 const HUNTER_RULES: HunterRule[] = ['off', 'firstOnly', 'all'];
-const CARD_IN_JSON = /"rank":"[^"]+","suit":"[^"]+"/g;
+const CARD_IN_JSON = /\{"rank":[^}]*\}/g;
 
 function allCards(state: GameState): Card[] {
   return [
@@ -40,11 +40,15 @@ function checkInvariants(state: GameState, previous: GameState, seed: number) {
     throw new Error(`Invariant broken (seed ${seed}): ${message}`);
   };
 
+  const expected = 52 * state.settings.deckCount;
   const keys = allCards(state).map(cardKey);
-  if (keys.length !== 52 || new Set(keys).size !== 52) fail(`${keys.length} cards, ${new Set(keys).size} unique`);
+  if (keys.length !== expected || new Set(keys).size !== expected) {
+    fail(`${keys.length} cards, ${new Set(keys).size} unique, expected ${expected}`);
+  }
 
   for (const p of state.players) {
     if (p.life.length > MAX_LIFE_CARDS) fail(`${p.id} has ${p.life.length} life cards`);
+    if (p.munitions.length > state.settings.maxMunitions) fail(`${p.id} has ${p.munitions.length} munitions`);
     if (p.eliminated && (p.life.length || p.munitions.length || p.shield)) fail(`eliminated ${p.id} still has cards`);
     if (!p.eliminated && state.phase !== 'choosingShields' && p.life.length === 0) fail(`${p.id} alive without life`);
     const before = previous.players.find((q) => q.id === p.id)!;
@@ -58,7 +62,7 @@ function checkInvariants(state: GameState, previous: GameState, seed: number) {
     const json = JSON.stringify(viewFor(state, p.id));
     const visible = new Set(json.match(CARD_IN_JSON));
     for (const hidden of hiddenCardsFor(state, p.id)) {
-      if (visible.has(JSON.stringify(hidden).slice(1, -1))) fail(`${cardKey(hidden)} leaked to ${p.id}`);
+      if (visible.has(JSON.stringify(hidden))) fail(`${cardKey(hidden)} leaked to ${p.id}`);
     }
   }
 }
@@ -69,12 +73,12 @@ function nextActor(state: GameState): PlayerId {
   return state.turn!.player;
 }
 
-/** Returns null if the game ran out of cards (rule not decided yet). */
-function runGame(seed: number): GameState | null {
+function runGame(seed: number): GameState {
   const rng = createRng(seed);
   const playerCount = 3 + (seed % 8);
   const players = Array.from({ length: playerCount }, (_, i) => ({ id: `p${i}`, name: `Bot ${i}` }));
-  let state = createGame(players, { hunterRule: pick(HUNTER_RULES, rng) }, rng);
+  const settings = { hunterRule: pick(HUNTER_RULES, rng), deckCount: pick(allowedDeckCounts(playerCount), rng) };
+  let state = createGame(players, settings, rng);
   for (const p of players) {
     state = applyCommand(state, p.id, { type: 'setPreference', preference: pick(PREFERENCES, rng) }).state;
   }
@@ -86,12 +90,7 @@ function runGame(seed: number): GameState | null {
     const command = randomBot(viewFor(state, actor), rng);
     if (!command) throw new Error(`Bot ${actor} had nothing to do (seed ${seed})`);
     const previous = state;
-    try {
-      state = applyCommand(state, actor, command).state;
-    } catch (error) {
-      if (error instanceof OutOfCardsError) return null;
-      throw error;
-    }
+    state = applyCommand(state, actor, command).state;
     checkInvariants(state, previous, seed);
   }
   return state;
@@ -99,15 +98,8 @@ function runGame(seed: number): GameState | null {
 
 describe(`simulation: ${GAMES} random-bot games`, () => {
   it('always ends with a winner and never breaks an invariant', () => {
-    let outOfCards = 0;
     for (let seed = 1; seed <= GAMES; seed++) {
-      const final = runGame(seed);
-      if (final === null) outOfCards++;
-      else expect(final.winner, `seed ${seed}`).not.toBeNull();
+      expect(runGame(seed).winner, `seed ${seed}`).not.toBeNull();
     }
-    // Rare with random bots (about 0.4% of games with 8-10 players).
-    expect(outOfCards).toBeLessThan(GAMES / 50);
   }, 20_000);
-
-  it.todo('out of cards (draw deck and side pot empty): rule to decide');
 });

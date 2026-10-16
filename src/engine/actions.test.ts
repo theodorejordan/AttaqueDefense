@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { draw, legalPlays, play } from './actions.ts';
 import type { ActionType, GameState, PlayerId } from './state.ts';
-import { card, cards, makePlayer, makeState, values } from './test-helpers.ts';
+import { card, cards, makePlayer, makeState, testSettings, values } from './test-helpers.ts';
 
 /** Puts `rank` on top of the draw deck, then draws and plays it. */
 function drawAndPlay(state: GameState, type: ActionType, target: PlayerId, rank: Parameters<typeof card>[0]) {
@@ -131,6 +131,21 @@ describe('defense (RULES 5.2)', () => {
 });
 
 describe('munition (RULES 5.3)', () => {
+  it('cannot give a munition to a player who holds the maximum (5 by default)', () => {
+    const players = fourPlayers();
+    players[2]!.munitions = cards('2', '3', '4', '5', '6');
+    const state = draw(makeState(players, { drawDeck: cards('K') }), 'A').state;
+    expect(legalPlays(state, 'A')).not.toContainEqual({ type: 'munition', target: 'C' });
+    expect(() => play(state, 'A', { type: 'munition', target: 'C' })).toThrow();
+  });
+
+  it('follows the max munitions setting', () => {
+    const players = fourPlayers();
+    players[2]!.munitions = cards('2', '3');
+    const state = draw(makeState(players, { drawDeck: cards('K'), settings: testSettings({ maxMunitions: 2 }) }), 'A').state;
+    expect(legalPlays(state, 'A')).not.toContainEqual({ type: 'munition', target: 'C' });
+  });
+
   it('gives the card face-down, without revealing it in the events', () => {
     const { state: next, events } = drawAndPlay(makeState(fourPlayers()), 'munition', 'C', 'K');
     expect(values(player(next, 'C').munitions)).toEqual([13]);
@@ -154,7 +169,7 @@ describe('hunter rule (RULES 8.2)', () => {
     const players = fourPlayers();
     players[1]!.life = cards('2');
     return makeState(players, {
-      settings: { hunterRule },
+      settings: testSettings({ hunterRule }),
       turn: { player: 'C', drawn: null, drawnVisible: false, isHunter: false, resumeAfter: 'C' },
     });
   };

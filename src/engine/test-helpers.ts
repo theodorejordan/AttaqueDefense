@@ -1,9 +1,9 @@
 // Builders for hand-made game states in tests.
 import { type Card, type Rank, type Suit, cardValue } from './cards.ts';
-import type { GameState, Player } from './state.ts';
+import type { GameState, Player, Settings } from './state.ts';
 
-export function card(rank: Rank, suit: Suit = 'hearts'): Card {
-  return { rank, suit };
+export function card(rank: Rank, suit: Suit = 'hearts', deck = 0): Card {
+  return { rank, suit, deck };
 }
 
 export function cards(...ranks: Rank[]): Card[] {
@@ -28,11 +28,15 @@ export function makePlayer(id: string, overrides: Partial<Player> = {}): Player 
   };
 }
 
+export function testSettings(overrides: Partial<Settings> = {}): Settings {
+  return { hunterRule: 'firstOnly', deckCount: 1, maxMunitions: 5, ...overrides };
+}
+
 /** A running game where it is the first player's turn. */
 export function makeState(players: Player[], overrides: Partial<GameState> = {}): GameState {
   const first = players[0]!.id;
   return {
-    settings: { hunterRule: 'firstOnly' },
+    settings: testSettings(),
     phase: 'playing',
     players,
     drawDeck: [],

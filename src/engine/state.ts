@@ -5,9 +5,17 @@ export type DamagePreference = 'fewestCards' | 'lowestMax' | 'normal';
 export type HunterRule = 'off' | 'firstOnly' | 'all';
 export type ActionType = 'attack' | 'defense' | 'munition';
 
+/** Game settings, resolved when the game is created. */
 export interface Settings {
   hunterRule: HunterRule;
+  /** 1 or 2, depending on the number of players (RULES 2). */
+  deckCount: number;
+  /** Most munitions a player can hold (RULES 5.3). */
+  maxMunitions: number;
 }
+
+/** What the host chooses when creating a game. Anything left out gets its default. */
+export type GameOptions = Partial<Settings>;
 
 export interface Player {
   id: PlayerId;
@@ -93,7 +101,10 @@ export class IllegalMoveError extends Error {
   override name = 'IllegalMoveError';
 }
 
-/** The draw deck and the side pot are both empty. No rule covers this yet (see RULES open questions). */
+/**
+ * The draw deck and the side pot are both empty. The rules make this impossible in practice
+ * (enough decks for the number of players, at most 5 munitions each, RULES 2 and 5.3), so it signals a bug.
+ */
 export class OutOfCardsError extends Error {
   override name = 'OutOfCardsError';
 }

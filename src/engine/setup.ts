@@ -3,12 +3,12 @@ import { cardValue, createDeck, sumValues } from './cards.ts';
 import { type Rng, shuffle } from './rng.ts';
 import {
   type GameEvent,
+  type GameOptions,
   type GameState,
   IllegalMoveError,
   type Player,
   type PlayerId,
   type Result,
-  type Settings,
   cloneState,
   getPlayer,
 } from './state.ts';
@@ -16,23 +16,41 @@ import {
 export const MIN_PLAYERS = 3;
 export const MAX_PLAYERS = 10;
 export const CARDS_DEALT = 4;
+/** RULES 2: one deck below 6 players, one or two for 6-7 players, two from 8 players. */
+export function allowedDeckCounts(playerCount: number): number[] {
+  if (playerCount < 6) return [1];
+  if (playerCount < 8) return [1, 2];
+  return [2];
+}
 
-export const DEFAULT_SETTINGS: Settings = { hunterRule: 'firstOnly' };
+export const DEFAULT_HUNTER_RULE = 'firstOnly';
+export const DEFAULT_MAX_MUNITIONS = 5;
+export const MUNITION_LIMITS = { min: 1, max: 10 };
 
 export interface NewPlayer {
   id: PlayerId;
   name: string;
 }
 
-export function createGame(newPlayers: NewPlayer[], settings: Settings, rng: Rng): GameState {
+export function createGame(newPlayers: NewPlayer[], options: GameOptions, rng: Rng): GameState {
   if (newPlayers.length < MIN_PLAYERS || newPlayers.length > MAX_PLAYERS) {
     throw new IllegalMoveError(`A game needs ${MIN_PLAYERS} to ${MAX_PLAYERS} players`);
   }
   if (new Set(newPlayers.map((p) => p.id)).size !== newPlayers.length) {
     throw new IllegalMoveError('Player ids must be unique');
   }
+  const allowed = allowedDeckCounts(newPlayers.length);
+  const deckCount = options.deckCount ?? allowed[0]!;
+  if (!allowed.includes(deckCount)) {
+    throw new IllegalMoveError(`${newPlayers.length} players can play with ${allowed.join(' or ')} deck(s)`);
+  }
+  const maxMunitions = options.maxMunitions ?? DEFAULT_MAX_MUNITIONS;
+  if (!Number.isInteger(maxMunitions) || maxMunitions < MUNITION_LIMITS.min || maxMunitions > MUNITION_LIMITS.max) {
+    throw new IllegalMoveError(`Max munitions must be between ${MUNITION_LIMITS.min} and ${MUNITION_LIMITS.max}`);
+  }
 
-  const deck = shuffle(createDeck(), rng);
+  const decks = Array.from({ length: deckCount }, (_, i) => createDeck(i));
+  const deck = shuffle(decks.flat(), rng);
   const players: Player[] = shuffle(newPlayers, rng).map(({ id, name }) => ({
     id,
     name,
@@ -45,7 +63,7 @@ export function createGame(newPlayers: NewPlayer[], settings: Settings, rng: Rng
   }));
 
   return {
-    settings: { ...settings },
+    settings: { hunterRule: options.hunterRule ?? DEFAULT_HUNTER_RULE, deckCount, maxMunitions },
     phase: 'choosingShields',
     players,
     drawDeck: deck,

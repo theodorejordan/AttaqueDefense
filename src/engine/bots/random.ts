@@ -15,6 +15,5 @@ export function randomBot(view: PlayerView, rng: Rng): Command | null {
   if (view.phase !== 'playing' || view.turn?.player !== view.you) return null;
   if (!view.turn.hasDrawn) return { type: 'draw' };
 
-  const alive = view.players.filter((p) => !p.eliminated).map((p) => p.id);
-  return { type: 'play', play: pick(playsFor(view.you, alive), rng) };
+  return { type: 'play', play: pick(playsFor(view.you, view.players, view.settings.maxMunitions), rng) };
 }

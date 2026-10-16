@@ -7,6 +7,8 @@ export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades';
 export interface Card {
   readonly rank: Rank;
   readonly suit: Suit;
+  /** Which deck the card comes from: a game can use two identical decks. */
+  readonly deck: number;
 }
 
 export const RANKS: readonly Rank[] = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
@@ -27,10 +29,10 @@ export function sumValues(cards: readonly Card[]): number {
   return cards.reduce((total, card) => total + cardValue(card), 0);
 }
 
-export function createDeck(): Card[] {
-  return SUITS.flatMap((suit) => RANKS.map((rank) => ({ rank, suit })));
+export function createDeck(deck = 0): Card[] {
+  return SUITS.flatMap((suit) => RANKS.map((rank) => ({ rank, suit, deck })));
 }
 
 export function cardKey(card: Card): string {
-  return `${card.rank}-${card.suit}`;
+  return `${card.rank}-${card.suit}-${card.deck}`;
 }
