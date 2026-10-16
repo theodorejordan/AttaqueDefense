@@ -33,6 +33,21 @@ Last player standing wins. Full rules: [`docs/RULES.md`](docs/RULES.md).
 - [`docs/RULES.md`](docs/RULES.md): full game rules
 - [`docs/DECISIONS.md`](docs/DECISIONS.md): technical and design decisions
 
+## Development
+
+Requires [Node.js](https://nodejs.org/) 22.18 or later.
+
+```sh
+npm install      # install dependencies
+npm run dev      # start the frontend dev server
+npm test         # run the tests
+npm run typecheck
+```
+
 ## Versioning
 
 Releases follow [Semantic Versioning](https://semver.org/) (`v0.1.0`, `v0.2.0`, …) and commits follow [Conventional Commits](https://www.conventionalcommits.org/).
+
+## License
+
+[MIT](LICENSE)
