@@ -7,7 +7,7 @@ Last updated: 2026-10-16. Update this file whenever a step starts or ends, or a 
 | # | Step | Status |
 |---|---|---|
 | 1 | Scaffold (TypeScript, Vite, Vitest) | Done |
-| 2 | Game engine + tests + random bot + simulations | Done (awaiting commit of the deck/munition settings) |
+| 2 | Game engine + tests + random bot + simulations | Done (awaiting commit of the hunter/deck changes) |
 | 3 | Server: lobby, "Add bot", filtered views, reconnection, multi-tab dev mode | **Next**, after the UX flows discussion |
 | 4 | Visual style discussion with mockups → desktop UI | To do |
 | 5 | Launch commands: `npm start` (LAN + QR code), `npm run share` (Cloudflare Quick Tunnel) | To do. `v0.1.0` = first playable version |
@@ -18,12 +18,12 @@ Last updated: 2026-10-16. Update this file whenever a step starts or ends, or a 
 1. **UX flows discussion** (before step 3, because it shapes what the server sends): what a turn looks like on screen,
    picking a target, confirmations, the attack reveal, how the hunter turn and the Ace peek are shown,
    where the damage preference lives, the game log. Owner's layout and style notes are in `DECISIONS.md` > UI.
-2. Then plan step 3 (server) and get approval.
+2. Then plan step 3 (server) and get approval. The server must not crash on the engine's rare `OutOfCardsError`
+   (accepted risk, see RULES clarifications log): just show it and end the game.
 
 ## Pending discussions (owner input needed)
-- **Default number of decks for 6–7 players**: currently 1. Simulations: with 7 players and one deck, the draw deck + side pot went down to 4 cards (never empty).
-- **Max munitions range**: see RULES open questions (safe values only vs 1–10).
-- **Lobby settings** to expose: hunter rule (off / first eliminated only / all), number of decks (6–7 players), max munitions (default 5). Anything else?
+- **Lobby settings** (all chosen before the game starts): hunters (off / first 1, 2 or 3 eliminated, default 1),
+  number of decks (choice for 6–8 players, default 1), max munitions (default 5). Anything else?
 - **Bots (step 7)**: difficulty levels random, beginner, confirmed, expert, godlike. Owner has requirements: ask before designing.
   Godlike never cheats. Bots have names; faces from photos postponed.
 - **Long-term**: bot-vs-bot simulations to find the best moves per game state.

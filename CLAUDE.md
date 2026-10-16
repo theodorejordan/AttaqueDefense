@@ -16,6 +16,7 @@ Never invent a rule: if something is ambiguous or missing, ask the owner, then r
 - Discuss every design decision before implementing it, at each roadmap step. The owner has their own ideas
   (e.g. bots, UI): ask for them first. Present options with pros/cons and a recommendation; challenge bad ideas.
 - Plan before coding (files, approach, why) and get approval. Explain concepts and link official docs.
+- Don't over-anticipate rare edge cases: mention them briefly, then move on. The owner prefers to handle them if they happen in real games.
 - Never commit or push without the owner's explicit go-ahead for that specific change. No AI attribution in commits.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`).
 - Releases are tagged with [SemVer](https://semver.org/) (`v0.1.0`, …). See `docs/DECISIONS.md` > Versioning.

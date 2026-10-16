@@ -21,8 +21,8 @@ If the code and this file disagree, this file wins (or the file gets updated aft
   | Players | Decks |
   |---|---|
   | 3–5 | 1 |
-  | 6–7 | 1 (default) or 2 |
-  | 8–10 | 2 |
+  | 6–8 | 1 (default) or 2 |
+  | 9–10 | 2 |
 - With two decks, identical cards exist (e.g. two 7♥). They behave exactly the same.
 - Values: A = 1, 2–10 = face value, J = 11, Q = 12, K = 13.
 
@@ -70,7 +70,7 @@ The replaced shield (if any) goes to the side pot.
 Give the drawn card face-down to any player still in the game (yourself included).
 - Nobody sees its value, not even the giver or the receiver.
 - Everyone can see how many munitions each player holds.
-- A player can hold a **maximum number of munitions** (game setting, **5** by default): you cannot give a munition to a player who already holds the maximum.
+- A player can hold a **maximum number of munitions** (game setting from 1 to 10, **5** by default): you cannot give a munition to a player who already holds the maximum.
 
 ### 5.4 Ace shield: peek
 If a player's shield is an Ace when they draw, they privately see the drawn card before choosing their action.
@@ -149,11 +149,12 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 
 ### 8.2 Hunter rule
 - The **first** player eliminated in the game immediately plays one last turn (draw, then play), right after the action that eliminated them.
+  The number of hunters is a game setting: **off**, **first player eliminated** (default), **first two** or **first three** players eliminated.
 - They may choose any action **except** giving themselves a shield or a munition. So: attack a player, change or give someone else's shield, or give someone else a munition.
 - They have no munitions left (they lost them when they lost life points), so a hunter attack uses only the drawn card.
-- Players eliminated afterwards (including by the hunter) do not get a hunter action.
+- Players eliminated after that (including by a hunter) do not get a hunter action.
+  A hunter can trigger another hunter turn if the setting allows it (e.g. "first two" and the hunter eliminates someone).
 - Then play resumes normally. Example: order A, B, C, D; C eliminates B → B plays as hunter → D plays.
-- Planned game setting: hunter rule off / first eliminated only (default) / every eliminated player.
 
 ## 9. Information visibility
 | Element | Visible to |
@@ -171,9 +172,7 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 To decide.
 
 ## Open questions
-- **Allowed range for the max munitions setting.** Guaranteed never to run out of cards if `players × (4 + max) < 52 × decks`
-  (e.g. 7 players with one deck → max 3). Option A: the lobby only offers safe values. Option B: 1–10 everywhere, trusting simulations
-  (0 stuck games in 63,000, even at 10). Currently implemented: 1–10, default 5.
+None for now.
 
 ## Clarifications log
 - **2026-10-16**: Order of discards before the replacement search: owner says it makes little difference; chosen order is shield first, then attack cards.
@@ -183,3 +182,7 @@ To decide.
   7 players with one deck, down to 4 cards left. The engine raises `OutOfCardsError` if it ever happens.
 - **2026-10-16**: Implementation choice (no effect on the outcome, only on pile order): removed life cards go to the side pot **after** the replacement card is taken.
 - **2026-10-16**: Engine safety net for the last resort (6.1): if no card at all is left to search, life cards are removed without replacement (value 0); the player is eliminated only if nothing else is possible.
+- **2026-10-16**: Owner changed the deck choice to 6–8 players (two decks only for 9–10), and the hunter setting to off / first 1, 2 or 3 eliminated.
+  All settings are chosen before the game starts.
+- **2026-10-16**: Running out of cards stays possible in rare cases (about 2 in 10,000 random-bot games with 8 players and one deck).
+  Owner accepts it: no rule for now, to revisit only if it happens in real games. Max munitions: 1–10 for every setup.
