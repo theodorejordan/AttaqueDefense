@@ -165,11 +165,12 @@ describe('turn order (RULES 4)', () => {
 
 describe('hunter rule (RULES 8.2)', () => {
   /** Order A, B, C, D. It is C's turn and B has 2 life points. */
-  const cTurn = (hunterRule: GameState['settings']['hunterRule'] = 'firstOnly') => {
+  const cTurn = (hunters = 1, eliminationCount = 0) => {
     const players = fourPlayers();
     players[1]!.life = cards('2');
     return makeState(players, {
-      settings: testSettings({ hunterRule }),
+      settings: testSettings({ hunters }),
+      eliminationCount,
       turn: { player: 'C', drawn: null, drawnVisible: false, isHunter: false, resumeAfter: 'C' },
     });
   };
@@ -188,18 +189,18 @@ describe('hunter rule (RULES 8.2)', () => {
   });
 
   it('only applies to the first elimination by default', () => {
-    const state = cTurn();
-    state.firstEliminationDone = true;
-    const next = drawAndPlay(state, 'attack', 'B', '5').state;
+    const next = drawAndPlay(cTurn(1, 1), 'attack', 'B', '5').state;
     expect(next.turn).toMatchObject({ player: 'D', isHunter: false });
   });
 
-  it('can be turned off, or applied to every elimination', () => {
-    expect(drawAndPlay(cTurn('off'), 'attack', 'B', '5').state.turn?.player).toBe('D');
+  it('can be turned off', () => {
+    expect(drawAndPlay(cTurn(0), 'attack', 'B', '5').state.turn?.player).toBe('D');
+  });
 
-    const all = cTurn('all');
-    all.firstEliminationDone = true;
-    expect(drawAndPlay(all, 'attack', 'B', '5').state.turn).toMatchObject({ player: 'B', isHunter: true });
+  it('can apply to the first 2 or 3 eliminated players', () => {
+    expect(drawAndPlay(cTurn(2, 1), 'attack', 'B', '5').state.turn).toMatchObject({ player: 'B', isHunter: true });
+    expect(drawAndPlay(cTurn(3, 2), 'attack', 'B', '5').state.turn).toMatchObject({ player: 'B', isHunter: true });
+    expect(drawAndPlay(cTurn(3, 3), 'attack', 'B', '5').state.turn).toMatchObject({ player: 'D', isHunter: false });
   });
 });
 

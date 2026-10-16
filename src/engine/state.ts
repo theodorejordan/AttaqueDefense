@@ -2,12 +2,12 @@ import type { Card } from './cards.ts';
 
 export type PlayerId = string;
 export type DamagePreference = 'fewestCards' | 'lowestMax' | 'normal';
-export type HunterRule = 'off' | 'firstOnly' | 'all';
 export type ActionType = 'attack' | 'defense' | 'munition';
 
 /** Game settings, resolved when the game is created. */
 export interface Settings {
-  hunterRule: HunterRule;
+  /** How many of the first eliminated players get a hunter turn: 0 (off) to 3 (RULES 8.2). */
+  hunters: number;
   /** 1 or 2, depending on the number of players (RULES 2). */
   deckCount: number;
   /** Most munitions a player can hold (RULES 5.3). */
@@ -52,7 +52,8 @@ export interface GameState {
   turn: Turn | null;
   /** Random order used when the first-player rule ends in a tie (RULES 3). */
   tieBreakOrder: PlayerId[];
-  firstEliminationDone: boolean;
+  /** Number of players eliminated so far. */
+  eliminationCount: number;
   winner: PlayerId | null;
 }
 
@@ -102,8 +103,8 @@ export class IllegalMoveError extends Error {
 }
 
 /**
- * The draw deck and the side pot are both empty. The rules make this impossible in practice
- * (enough decks for the number of players, at most 5 munitions each, RULES 2 and 5.3), so it signals a bug.
+ * The draw deck and the side pot are both empty. Rare (mostly 8 players with one deck) and accepted
+ * by the owner without a rule for now (RULES clarifications log).
  */
 export class OutOfCardsError extends Error {
   override name = 'OutOfCardsError';

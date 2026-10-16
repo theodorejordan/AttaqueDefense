@@ -29,7 +29,7 @@ export function makePlayer(id: string, overrides: Partial<Player> = {}): Player 
 }
 
 export function testSettings(overrides: Partial<Settings> = {}): Settings {
-  return { hunterRule: 'firstOnly', deckCount: 1, maxMunitions: 5, ...overrides };
+  return { hunters: 1, deckCount: 1, maxMunitions: 5, ...overrides };
 }
 
 /** A running game where it is the first player's turn. */
@@ -43,7 +43,7 @@ export function makeState(players: Player[], overrides: Partial<GameState> = {})
     sidePot: [],
     turn: { player: first, drawn: null, drawnVisible: false, isHunter: false, resumeAfter: first },
     tieBreakOrder: players.map((p) => p.id),
-    firstEliminationDone: false,
+    eliminationCount: 0,
     winner: null,
     ...overrides,
   };

@@ -218,17 +218,6 @@ function eliminate(state: GameState, player: Player, events: GameEvent[]) {
   events.push({ type: 'eliminated', player: player.id });
 }
 
-function hunterApplies(state: GameState): boolean {
-  switch (state.settings.hunterRule) {
-    case 'off':
-      return false;
-    case 'firstOnly':
-      return !state.firstEliminationDone;
-    case 'all':
-      return true;
-  }
-}
-
 /** RULES 4 steps 3-4 and 8.2. */
 function endTurn(state: GameState, eliminated: PlayerId | null, events: GameEvent[]) {
   const turn = state.turn!;
@@ -242,8 +231,9 @@ function endTurn(state: GameState, eliminated: PlayerId | null, events: GameEven
   }
 
   if (eliminated) {
-    const isHunter = hunterApplies(state);
-    state.firstEliminationDone = true;
+    // The first `hunters` eliminated players get a hunter turn (RULES 8.2).
+    const isHunter = state.eliminationCount < state.settings.hunters;
+    state.eliminationCount++;
     if (isHunter) {
       state.turn = { player: eliminated, drawn: null, drawnVisible: false, isHunter: true, resumeAfter: turn.resumeAfter };
       events.push({ type: 'hunterTurn', player: eliminated });

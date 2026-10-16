@@ -4,15 +4,14 @@ import { applyCommand } from './actions.ts';
 import { randomBot } from './bots/random.ts';
 import { type Card, cardKey, sumValues } from './cards.ts';
 import { MAX_LIFE_CARDS } from './damage.ts';
-import { createRng, pick } from './rng.ts';
+import { createRng, pick, randomInt } from './rng.ts';
 import { allowedDeckCounts, createGame, hasChosenShield } from './setup.ts';
-import type { DamagePreference, GameState, HunterRule, PlayerId } from './state.ts';
+import { type DamagePreference, type GameState, OutOfCardsError, type PlayerId } from './state.ts';
 import { viewFor } from './view.ts';
 
 const GAMES = 200;
 const MAX_COMMANDS = 5000;
 const PREFERENCES: DamagePreference[] = ['fewestCards', 'lowestMax', 'normal'];
-const HUNTER_RULES: HunterRule[] = ['off', 'firstOnly', 'all'];
 const CARD_IN_JSON = /\{"rank":[^}]*\}/g;
 
 function allCards(state: GameState): Card[] {
@@ -73,11 +72,12 @@ function nextActor(state: GameState): PlayerId {
   return state.turn!.player;
 }
 
-function runGame(seed: number): GameState {
+/** Returns null if the game ran out of cards (rare, accepted: RULES clarifications log). */
+function runGame(seed: number): GameState | null {
   const rng = createRng(seed);
   const playerCount = 3 + (seed % 8);
   const players = Array.from({ length: playerCount }, (_, i) => ({ id: `p${i}`, name: `Bot ${i}` }));
-  const settings = { hunterRule: pick(HUNTER_RULES, rng), deckCount: pick(allowedDeckCounts(playerCount), rng) };
+  const settings = { hunters: randomInt(4, rng), deckCount: pick(allowedDeckCounts(playerCount), rng) };
   let state = createGame(players, settings, rng);
   for (const p of players) {
     state = applyCommand(state, p.id, { type: 'setPreference', preference: pick(PREFERENCES, rng) }).state;
@@ -90,7 +90,12 @@ function runGame(seed: number): GameState {
     const command = randomBot(viewFor(state, actor), rng);
     if (!command) throw new Error(`Bot ${actor} had nothing to do (seed ${seed})`);
     const previous = state;
-    state = applyCommand(state, actor, command).state;
+    try {
+      state = applyCommand(state, actor, command).state;
+    } catch (error) {
+      if (error instanceof OutOfCardsError) return null;
+      throw error;
+    }
     checkInvariants(state, previous, seed);
   }
   return state;
@@ -99,7 +104,8 @@ function runGame(seed: number): GameState {
 describe(`simulation: ${GAMES} random-bot games`, () => {
   it('always ends with a winner and never breaks an invariant', () => {
     for (let seed = 1; seed <= GAMES; seed++) {
-      expect(runGame(seed).winner, `seed ${seed}`).not.toBeNull();
+      const final = runGame(seed);
+      if (final) expect(final.winner, `seed ${seed}`).not.toBeNull();
     }
   }, 20_000);
 });

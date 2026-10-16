@@ -16,14 +16,15 @@ import {
 export const MIN_PLAYERS = 3;
 export const MAX_PLAYERS = 10;
 export const CARDS_DEALT = 4;
-/** RULES 2: one deck below 6 players, one or two for 6-7 players, two from 8 players. */
+/** RULES 2: one deck for 3-5 players, one or two for 6-8 players, two for 9-10 players. */
 export function allowedDeckCounts(playerCount: number): number[] {
-  if (playerCount < 6) return [1];
-  if (playerCount < 8) return [1, 2];
+  if (playerCount <= 5) return [1];
+  if (playerCount <= 8) return [1, 2];
   return [2];
 }
 
-export const DEFAULT_HUNTER_RULE = 'firstOnly';
+export const DEFAULT_HUNTERS = 1;
+export const HUNTER_LIMITS = { min: 0, max: 3 };
 export const DEFAULT_MAX_MUNITIONS = 5;
 export const MUNITION_LIMITS = { min: 1, max: 10 };
 
@@ -44,6 +45,10 @@ export function createGame(newPlayers: NewPlayer[], options: GameOptions, rng: R
   if (!allowed.includes(deckCount)) {
     throw new IllegalMoveError(`${newPlayers.length} players can play with ${allowed.join(' or ')} deck(s)`);
   }
+  const hunters = options.hunters ?? DEFAULT_HUNTERS;
+  if (!Number.isInteger(hunters) || hunters < HUNTER_LIMITS.min || hunters > HUNTER_LIMITS.max) {
+    throw new IllegalMoveError(`Hunters must be between ${HUNTER_LIMITS.min} and ${HUNTER_LIMITS.max}`);
+  }
   const maxMunitions = options.maxMunitions ?? DEFAULT_MAX_MUNITIONS;
   if (!Number.isInteger(maxMunitions) || maxMunitions < MUNITION_LIMITS.min || maxMunitions > MUNITION_LIMITS.max) {
     throw new IllegalMoveError(`Max munitions must be between ${MUNITION_LIMITS.min} and ${MUNITION_LIMITS.max}`);
@@ -63,14 +68,14 @@ export function createGame(newPlayers: NewPlayer[], options: GameOptions, rng: R
   }));
 
   return {
-    settings: { hunterRule: options.hunterRule ?? DEFAULT_HUNTER_RULE, deckCount, maxMunitions },
+    settings: { hunters, deckCount, maxMunitions },
     phase: 'choosingShields',
     players,
     drawDeck: deck,
     sidePot: [],
     turn: null,
     tieBreakOrder: shuffle(players.map((p) => p.id), rng),
-    firstEliminationDone: false,
+    eliminationCount: 0,
     winner: null,
   };
 }

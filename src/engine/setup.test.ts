@@ -26,22 +26,27 @@ describe('createGame', () => {
       expect(() => withDecks(5, 2)).toThrow();
     });
 
-    it('lets 6-7 players choose, one deck by default', () => {
-      expect(withDecks(7).drawDeck).toHaveLength(52 - 7 * 4);
+    it('lets 6-8 players choose, one deck by default', () => {
+      expect(withDecks(8).drawDeck).toHaveLength(52 - 8 * 4);
       expect(withDecks(6, 2).drawDeck).toHaveLength(104 - 6 * 4);
     });
 
-    it('uses two decks from 8 players, with every card still distinct', () => {
-      expect(() => withDecks(8, 1)).toThrow();
-      const eight = withDecks(8);
-      const all = [...eight.players.flatMap((p) => p.dealt), ...eight.drawDeck];
+    it('uses two decks for 9-10 players, with every card still distinct', () => {
+      expect(() => withDecks(9, 1)).toThrow();
+      const nine = withDecks(9);
+      const all = [...nine.players.flatMap((p) => p.dealt), ...nine.drawDeck];
       expect(new Set(all.map(cardKey)).size).toBe(104);
     });
   });
 
-  it('defaults to the "first eliminated" hunter rule and 5 max munitions', () => {
+  it('defaults to 1 hunter (first eliminated player) and 5 max munitions', () => {
     const { settings } = createGame(newPlayers(4), {}, createRng(1));
-    expect(settings).toEqual({ hunterRule: 'firstOnly', deckCount: 1, maxMunitions: DEFAULT_MAX_MUNITIONS });
+    expect(settings).toEqual({ hunters: 1, deckCount: 1, maxMunitions: DEFAULT_MAX_MUNITIONS });
+  });
+
+  it('validates the number of hunters (0 to 3)', () => {
+    expect(() => createGame(newPlayers(4), { hunters: 4 }, createRng(1))).toThrow();
+    expect(() => createGame(newPlayers(4), { hunters: 0 }, createRng(1))).not.toThrow();
   });
 
   it('validates max munitions', () => {
