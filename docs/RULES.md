@@ -15,9 +15,16 @@ If the code and this file disagree, this file wins (or the file gets updated aft
 - Seating order is random. Play goes clockwise (= seating order).
 
 ## 2. Cards
-- One standard 52-card deck, no jokers. Suits have no effect.
+- Standard 52-card decks, no jokers. Suits have no effect.
+- Number of decks (game setting):
+
+  | Players | Decks |
+  |---|---|
+  | 3–5 | 1 |
+  | 6–7 | 1 (default) or 2 |
+  | 8–10 | 2 |
+- With two decks, identical cards exist (e.g. two 7♥). They behave exactly the same.
 - Values: A = 1, 2–10 = face value, J = 11, Q = 12, K = 13.
-- (Later option: two decks for 8–10 players.)
 
 ## 3. Setup
 1. Shuffle the deck. Deal 4 face-down cards to each player.
@@ -63,7 +70,7 @@ The replaced shield (if any) goes to the side pot.
 Give the drawn card face-down to any player still in the game (yourself included).
 - Nobody sees its value, not even the giver or the receiver.
 - Everyone can see how many munitions each player holds.
-- No limit on the number of munitions.
+- A player can hold a **maximum number of munitions** (game setting, **5** by default): you cannot give a munition to a player who already holds the maximum.
 
 ### 5.4 Ace shield: peek
 If a player's shield is an Ace when they draw, they privately see the drawn card before choosing their action.
@@ -164,11 +171,15 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 To decide.
 
 ## Open questions
-- **Out of cards**: what happens when a card must be drawn but the draw deck and the side pot are both empty
-  (all remaining cards are held as munitions)? Found by the simulations: about 0.4% of random-bot games with 8–10 players.
+- **Allowed range for the max munitions setting.** Guaranteed never to run out of cards if `players × (4 + max) < 52 × decks`
+  (e.g. 7 players with one deck → max 3). Option A: the lobby only offers safe values. Option B: 1–10 everywhere, trusting simulations
+  (0 stuck games in 63,000, even at 10). Currently implemented: 1–10, default 5.
 
 ## Clarifications log
 - **2026-10-16**: Order of discards before the replacement search: owner says it makes little difference; chosen order is shield first, then attack cards.
-- **2026-10-16**: Running out of every card (all cards held as munitions) was first ignored; the simulations showed it happens, see open questions.
+- **2026-10-16**: Running out of cards (draw deck and side pot both empty): the simulations showed it happened in about 0.4% of random-bot
+  games with 8–10 players and one deck, with 14–20 munitions held. Fixed by the owner with two rules: two decks from 8 players
+  (optional at 6–7), and at most 5 munitions per player. 80,000 simulated games after the fix: never happened. Closest case:
+  7 players with one deck, down to 4 cards left. The engine raises `OutOfCardsError` if it ever happens.
 - **2026-10-16**: Implementation choice (no effect on the outcome, only on pile order): removed life cards go to the side pot **after** the replacement card is taken.
 - **2026-10-16**: Engine safety net for the last resort (6.1): if no card at all is left to search, life cards are removed without replacement (value 0); the player is eliminated only if nothing else is possible.

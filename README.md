@@ -32,6 +32,7 @@ Last player standing wins. Full rules: [`docs/RULES.md`](docs/RULES.md).
 
 - [`docs/RULES.md`](docs/RULES.md): full game rules
 - [`docs/DECISIONS.md`](docs/DECISIONS.md): technical and design decisions
+- [`docs/STATUS.md`](docs/STATUS.md): current progress and next steps
 
 ## Development
 
