@@ -5,7 +5,8 @@ If the code and this file disagree, this file wins (or the file gets updated aft
 
 ## Glossary
 - **Life cards**: up to 3 face-up cards per player, laid vertically. Their sum = the player's life points.
-- **Shield**: 0 or 1 face-up card per player, laid horizontally in front of the life cards.
+- **Defence**: 0 or 1 face-up card per player, laid horizontally in front of the life cards.
+  Called `shield` in the code (and the action `'defense'`): only the code keeps those names, players always see "Defence".
 - **Munitions**: face-down cards held by a player, added to their next attack.
 - **Draw deck**: face-down pile.
 - **Side pot**: face-up pile of used cards. Each new card goes **on top**.
@@ -28,15 +29,15 @@ If the code and this file disagree, this file wins (or the file gets updated aft
 
 ## 3. Setup
 1. Shuffle the deck. Deal 4 face-down cards to each player.
-2. All players choose **at the same time**, **without seeing the values**, which of their 4 cards is their shield.
+2. All players choose **at the same time**, **without seeing the values**, which of their 4 cards is their defence.
    The other 3 become their life cards. The game starts once every player has chosen.
-3. All shields and life cards are then revealed.
-4. **First player**: lowest life points. Tie → lowest shield. Still tied → random.
+3. All defences and life cards are then revealed.
+4. **First player**: lowest life points. Tie → lowest defence. Still tied → random.
 
 ## 4. Turn structure
 1. **Draw**: the active player draws the top card of the draw deck. It is placed face-down beside the deck.
-   Nobody sees it, except the player themselves if their shield is an Ace (section 5.4).
-2. **Play**: the player chooses **exactly one** of these 3 actions for that card (Attack, Defense, Munition), then the player it applies to.
+   Nobody sees it, except the player themselves if their defence is an Ace (section 5.4).
+2. **Play**: the player chooses **exactly one** of these 3 actions for that card (Attack, Defence, Munition), then the player it applies to.
    The drawn card must be played: there is no cancelling.
 3. If that action eliminated the first player of the game, the **hunter** plays immediately (section 8.2).
 4. Play passes clockwise to the next player still in the game, counted from the player whose turn it was.
@@ -50,21 +51,21 @@ If the code and this file disagree, this file wins (or the file gets updated aft
    Munitions are mandatory: you always attack with all of them.
    **Attack value** = sum of all those cards.
 4. Resolution:
-   - Target has **no shield** → damage = attack value.
-   - Attack value **<** shield → nothing happens. The target keeps their shield and munitions.
-   - Attack value **=** shield → shield destroyed, no damage.
-   - Attack value **>** shield → shield destroyed, damage = attack value − shield.
-5. Discarding: the destroyed shield (if any) goes to the side pot first, then the attack cards (drawn card + munitions).
+   - Target has **no defence** → damage = attack value.
+   - Attack value **<** defence → nothing happens. The target keeps their defence and munitions.
+   - Attack value **=** defence → defence destroyed, no damage.
+   - Attack value **>** defence → defence destroyed, damage = attack value − defence.
+5. Discarding: the destroyed defence (if any) goes to the side pot first, then the attack cards (drawn card + munitions).
 6. If damage > 0, apply it (section 6).
-7. **Losing munitions**: if the target's shield was destroyed **or** they lost life points, all their munitions go to the side pot (section 6.3).
+7. **Losing munitions**: if the target's defence was destroyed **or** they lost life points, all their munitions go to the side pot (section 6.3).
 
-### 5.2 Defense
-Give the drawn card to a player as their shield. It is revealed as soon as it is placed. Three possible uses:
-- replace **your own** shield,
-- replace **another player's** shield,
-- give a shield to a player who has **none**.
+### 5.2 Defence
+Give the drawn card to a player as their defence. It is revealed as soon as it is placed. Three possible uses:
+- replace **your own** defence,
+- replace **another player's** defence,
+- give a defence to a player who has **none**.
 
-The replaced shield (if any) goes to the side pot.
+The replaced defence (if any) goes to the side pot.
 
 ### 5.3 Munition
 Give the drawn card face-down to any player still in the game (yourself included).
@@ -72,10 +73,10 @@ Give the drawn card face-down to any player still in the game (yourself included
 - Everyone can see how many munitions each player holds.
 - A player can hold a **maximum number of munitions** (game setting from 1 to 10, **5** by default): you cannot give a munition to a player who already holds the maximum.
 
-### 5.4 Ace shield: peek
-If a player's shield is an Ace when they draw, they privately see the drawn card before choosing their action.
+### 5.4 Ace defence: peek
+If a player's defence is an Ace when they draw, they privately see the drawn card before choosing their action.
 - Only that player sees it. The rest of the table does not.
-- It is a balancing rule for a weak shield, and an important part of the game.
+- It is a balancing rule for a weak defence, and an important part of the game.
 - If that card becomes a munition, the game does **not** remind them of its value: they have to remember it, as at a real table.
 
 ## 6. Damage
@@ -110,8 +111,8 @@ Example: life 9-2-12, 5 damage.
    as long as the player still has at most 3 life cards. The split chosen is the one found with the least searching.
 2. **Last resort** (practically never happens): use the closest **lower** available value (the player takes a bit more damage).
 
-Because the destroyed shield and the attack cards are discarded **before** the search (5.1 step 5),
-they are the first cards found. Example: an attack of 2 on a player with no shield and life 4-12
+Because the destroyed defence and the attack cards are discarded **before** the search (5.1 step 5),
+they are the first cards found. Example: an attack of 2 on a player with no defence and life 4-12
 → remove the 4, and the attack card 2 becomes their new life card → 2-12.
 
 ### 6.2 Choosing among valid options (automatic)
@@ -130,11 +131,11 @@ In the 9-2-12 example above, both "Fewest cards" and "Lowest max" pick 9-9.
 
 ### 6.3 Losing munitions
 A player loses all their munitions when:
-- their shield is destroyed by an attack, or
+- their defence is destroyed by an attack, or
 - they lose life points.
 
-If an attack is lower than their shield, they keep their munitions.
-If another player replaces their shield with Defense, it is not destroyed: they keep their munitions.
+If an attack is lower than their defence, they keep their munitions.
+If another player replaces their defence with the Defence action, it is not destroyed: they keep their munitions.
 Lost munitions go to the side pot face-up, **after** the damage is resolved (so they never serve as a replacement card for that attack).
 
 ## 7. Draw deck running out
@@ -144,13 +145,13 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 ## 8. Elimination and end of the game
 
 ### 8.1 Elimination
-- An eliminated player's cards (life cards, shield, munitions) go to the side pot.
+- An eliminated player's cards (life cards, defence, munitions) go to the side pot.
 - The last player standing wins.
 
 ### 8.2 Hunter rule
 - The **first** player eliminated in the game immediately plays one last turn (draw, then play), right after the action that eliminated them.
   The number of hunters is a game setting: **off**, **first player eliminated** (default), **first two** or **first three** players eliminated.
-- They may choose any action **except** giving themselves a shield or a munition. So: attack a player, change or give someone else's shield, or give someone else a munition.
+- They may choose any action **except** giving themselves a defence or a munition. So: attack a player, change or give someone else's defence, or give someone else a munition.
 - They have no munitions left (they lost them when they lost life points), so a hunter attack uses only the drawn card.
 - Players eliminated after that (including by a hunter) do not get a hunter action.
   A hunter can trigger another hunter turn if the setting allows it (e.g. "first two" and the hunter eliminates someone).
@@ -160,10 +161,10 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 | Element | Visible to |
 |---|---|
 | Life cards | Everyone |
-| Shields | Everyone (revealed as soon as placed) |
+| Defences | Everyone (revealed as soon as placed) |
 | Number of munitions per player | Everyone |
 | Munition values | Nobody, until revealed in an attack |
-| Drawn card (attack / defense / munition) | Nobody until revealed, except the Ace holder's peek (5.4) |
+| Drawn card (attack / defence / munition) | Nobody until revealed, except the Ace holder's peek (5.4) |
 | Side pot | Everyone (face-up) |
 | Draw deck | Nobody (only its card count) |
 | Damage preference | Only its owner |
@@ -171,7 +172,7 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 ## 10. Online-specific rules (disconnections)
 - A player who disconnects keeps their seat. When they come back, they find the game as it is, including a card they had already drawn.
 - While they are away, the game goes on without them, except when it needs them: their turn, their hunter turn,
-  or the shield choice at setup. Then the game waits for them.
+  or the defence choice at setup. Then the game waits for them.
 - If the game has been waiting for a disconnected player for **1 minute**, they are eliminated. Their cards go to the side pot (8.1),
   including a card they had already drawn.
 - This elimination does **not** give a hunter turn, and does **not** count towards the hunter setting:
@@ -182,7 +183,7 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 None for now.
 
 ## Clarifications log
-- **2026-10-16**: Order of discards before the replacement search: owner says it makes little difference; chosen order is shield first, then attack cards.
+- **2026-10-16**: Order of discards before the replacement search: owner says it makes little difference; chosen order is defence first, then attack cards.
 - **2026-10-16**: Running out of cards (draw deck and side pot both empty): the simulations showed it happened in about 0.4% of random-bot
   games with 8–10 players and one deck, with 14–20 munitions held. Fixed by the owner with two rules: two decks from 8 players
   (optional at 6–7), and at most 5 munitions per player. 80,000 simulated games after the fix: never happened. Closest case:
@@ -196,3 +197,5 @@ None for now.
 - **2026-10-19**: Disconnections (section 10): the game waits for a disconnected player only when it needs them, and eliminates them
   after 1 minute of waiting. No hunter turn for that elimination, and it does not count towards the hunter setting.
   A card they had already drawn goes to the side pot with their other cards. No timer for connected players.
+- **2026-10-19**: Vocabulary: what was called "shield" is called **Defence** in the game (English spelling "Defence"; French "Défense").
+  Changing a player's existing defence is "Change … defence" (not "swap": the old card goes to the side pot).

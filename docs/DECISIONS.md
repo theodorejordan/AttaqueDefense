@@ -38,8 +38,9 @@ Rule clarifications go in `RULES.md`, not here.
 
 ## Lobby and server (2026-10-19)
 
-- **Host**: the first human to join. They change the settings, add and remove bots, start the game, and send everyone
-  back to the lobby after a game. If the host leaves, the next human (in joining order) becomes host.
+- **Host**: the first connected human, in joining order. They change the settings, add and remove bots, start the game,
+  and send everyone back to the lobby after a game. If the host leaves or disconnects, the next connected human becomes host
+  (and the original host gets the role back on reconnection), so the host is always someone present.
 - **Lobby**: shows every seat (humans and bots). Anyone can join while the lobby is open, up to 10 seats.
   A human disconnected from the lobby for 1 minute loses their seat, so a closed tab never blocks the start.
 - **Spectators**: someone who opens the link during a game watches it, with public information only (RULES 9).
@@ -54,6 +55,10 @@ Rule clarifications go in `RULES.md`, not here.
 - **Dev mode**: the server runs Vite in [middleware mode](https://vite.dev/guide/ssr#setting-up-the-dev-server):
   one command, one port, same URL as in production.
 - **Step 3 client**: a throwaway debug page (raw buttons, state as text). The real UI comes in step 4.
+- **Bot pacing**: one bot move at a time, 1.5 s apart, 4 s after an attack so humans can follow the animation.
+  Bot names come from a fixed list in `src/server/room.ts` (owner can change it).
+- **Deck count in the lobby**: if the host picked 2 decks and players leave so that 2 is no longer allowed (RULES 2),
+  the default is used and shown.
 
 ## Access / networking (2026-10-16)
 
@@ -83,27 +88,38 @@ Two use cases, two commands:
     [Iota playing cards](https://www.creativebloq.com/graphic-design/iota-playing-cards-get-minimalist-makeover-5132595),
     [Contours playing cards](https://www.maxplayingcards.com/en/2016/09/11/contours-playing-cards-a-double-line-that-hides-many-secrets/),
     [UNO Minimalista](https://www.inverse.com/input/design/uno's-had-a-minimalist-design-overhaul-google-will-love-minimalista-games).
-  - Color as meaning: maybe **red for attack**, **blue for shield**.
+  - Color as meaning: maybe **red for attack**, **blue for defence**.
   - **Layout** (desktop and mobile): each player sees **their own cards in front of them** (bottom of the screen),
     the **side pot and draw deck in the middle**, and the **other players around the middle in playing order**.
     No table drawn: just names with their cards.
 - **Turn flow** (2026-10-19):
   1. Click the draw deck to draw. The card appears beside the deck: face-down for everyone, face-up only for the
-     active player if their shield is an Ace (RULES 5.4). No text announces the peek.
+     active player if their defence is an Ace (RULES 5.4). No text announces the peek.
   2. Click a player's area (cards + name) to select them. Not final: click elsewhere or press Esc to change.
-  3. Three buttons next to the drawn card, in the middle, naming the player ("Attack B", "Shield B", "Munition B").
+  3. Three buttons next to the drawn card, in the middle, naming the player ("Attack B", "Change B's defence" or "Give B a defence", "Munition B").
      Actions that are illegal on that player are disabled; players themselves are never greyed out.
      Clicking a button sends the move. No confirmation step: selecting the player is the safety net.
   - The buttons never cover a player's area: other players' cards must stay visible.
 - **Animations** (2026-10-19): sober, plain CSS ([3D transforms](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_transforms/Using_CSS_transforms)), no library.
-  - Attack: the attack cards flip in the air and land on the target (mostly on the shield), then stay 3–4 s while life points update.
-  - Defense: the card flips face-up onto the target's shield spot. Munition: it slides face-down onto the target's munition stack.
+  - Attack: the attack cards flip in the air and land on the target (mostly on the defence), then stay 3–4 s while life points update.
+  - Defence: the card flips face-up onto the target's defence spot. Munition: it slides face-down onto the target's munition stack.
   - **The wait is client-side**: the server applies moves at once and sends events; each device plays them in order
     and keeps its deck disabled until its own animations end.
 - **Main info text** (2026-10-19): in the middle, above the deck: whose turn it is, hunter turns, who hit whom.
 - **Game log** (2026-10-19): every player can open it on their device at any time. The server keeps the event history
   and sends it to a player who reconnects.
 - **Damage preference** (2026-10-19): bottom right for now, placement to be revisited.
+- **Vocabulary** (2026-10-19): players always see **Defence** (never "shield", which is only a code name).
+  English spelling "Defence". Button for a target who already has one: "Change B's defence"; otherwise "Give B a defence".
+- **Languages** (2026-10-19): English and French.
+  - Small dictionary of our own (`en.ts`, `fr.ts`, a `t(key)` function), no library: little text, light download.
+    TypeScript checks that both languages have every key. Plurals with [`Intl.PluralRules`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules).
+  - Each device picks its language: browser language first ([`navigator.language`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language)), then an EN/FR switch, remembered.
+  - The server never sends text: errors are codes, events are data. Each client translates.
+  - French face cards: **R, D, V** (Roi, Dame, Valet) instead of K, Q, J.
+  - Built with the real UI (step 4). The step 3 debug page stays English only.
+  - French terms (confirmed by the owner 2026-10-19): Attaque, Défense, Munition, points de vie / cartes de vie,
+    Pioche (draw deck), Défausse (side pot), Chasseur (hunter), "Changer la défense de B" / "Donner une défense à B".
 
 ## Repository and versioning (2026-10-16)
 
