@@ -32,6 +32,11 @@ Rule clarifications go in `RULES.md`, not here.
     (filtered view in → action out), so levels plug in without engine changes.
     **No bot ever cheats**: "godlike" is just very strong, using only its filtered view.
   - Bots have names. Faces from photos: postponed (privacy in a public repo, weight on mobile data).
+  - **Monte Carlo before machine learning** (2026-10-19, owner): first a Monte Carlo bot with determinization
+    ([ISMCTS](https://ieeexplore.ieee.org/document/6203567)): for each move, sample hidden-card layouts consistent with
+    what the bot knows, play them out, keep the best win rate. It is the baseline any learned bot must beat, it produces
+    training data (state → win rate per move), and it can power an endgame analyzer. Deep learning comes after.
+    Not now: later, with roadmap step 7. A bot's knowledge = its view + the public log + its own memories (e.g. an Ace peek).
 - **Turn in two engine steps** (2026-10-16): `draw`, then `play(action, target)`. The drawn card stays pending in between
   (also covers a disconnect mid-turn). Matches the owner's UI flow: card shown beside the deck → choose action → choose player.
   Changed 2026-10-19: the UI now asks for the player first, then the action (see UI > Turn flow). No engine change: `play` gets both at once.
@@ -117,7 +122,7 @@ Two use cases, two commands:
   - Each device picks its language: browser language first ([`navigator.language`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/language)), then an EN/FR switch, remembered.
   - The server never sends text: errors are codes, events are data. Each client translates.
   - French face cards: **R, D, V** (Roi, Dame, Valet) instead of K, Q, J.
-  - Built with the real UI (step 4). The step 3 debug page stays English only.
+  - Done early, at the owner's request (2026-10-19): `src/client/i18n/`, used by the debug page with an EN | FR switch. The real UI (step 4) reuses it.
   - French terms (confirmed by the owner 2026-10-19): Attaque, Défense, Munition, points de vie / cartes de vie,
     Pioche (draw deck), Défausse (side pot), Chasseur (hunter), "Changer la défense de B" / "Donner une défense à B".
 

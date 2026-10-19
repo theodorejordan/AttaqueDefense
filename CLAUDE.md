@@ -47,6 +47,8 @@ and imports use the `.ts` extension.
   - `validate.ts`: checks the shape of every client payload (clients are untrusted).
   - `index.ts`: HTTP + Socket.IO wiring; `--dev` serves the client through Vite middleware mode.
 - `src/client/`: throwaway debug page (step 3). The real UI comes in step 4.
+  - `i18n/`: English and French texts (`en.ts`, `fr.ts`, same keys, checked by TypeScript), `t`, language detection and switch.
+    Every text a player sees goes through `t`; the server only sends codes and data.
 
 ## Key principles
 - The server is authoritative: game logic and validation live in the engine, run by the server only.
