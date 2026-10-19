@@ -25,7 +25,7 @@ Never invent a rule: if something is ambiguous or missing, ask the owner, then r
 ```sh
 npm test           # all tests, including bot simulations
 npm run typecheck
-npm run dev        # frontend dev server (placeholder page for now)
+npm run dev        # game server + client on http://localhost:3000 (each browser tab = one player)
 ```
 Node 22.18+ runs the TypeScript directly (type stripping): only erasable syntax is allowed (no enums, no parameter properties),
 and imports use the `.ts` extension.
@@ -40,7 +40,13 @@ and imports use the `.ts` extension.
   - `bots/random.ts`: random bot (uses a `PlayerView`, never the full state).
   - `rng.ts`: seeded RNG; randomness is always injected, never `Math.random()` inside the engine.
   - `*.test.ts`: unit tests built from RULES examples; `simulation.test.ts` plays random games and checks invariants.
-- `src/client/`: Vite frontend (placeholder). `src/server/` and `src/shared/`: to come (roadmap step 3).
+  - `actions.ts` also has `eliminateAfterTimeout` (RULES 10), called by the server only. `view.ts` also has `spectatorView`.
+- `src/shared/protocol.ts`: messages between browser and server (`Request` in, `Update` out, `Reply` acknowledgement).
+- `src/server/`:
+  - `room.ts`: the single room (lobby, host, bots, game, event log, disconnection timers). No network code, tested with fake timers.
+  - `validate.ts`: checks the shape of every client payload (clients are untrusted).
+  - `index.ts`: HTTP + Socket.IO wiring; `--dev` serves the client through Vite middleware mode.
+- `src/client/`: throwaway debug page (step 3). The real UI comes in step 4.
 
 ## Key principles
 - The server is authoritative: game logic and validation live in the engine, run by the server only.

@@ -32,13 +32,12 @@ export interface PlayerView {
   winner: PlayerId | null;
 }
 
-export function viewFor(state: GameState, you: PlayerId): PlayerView {
-  const me = state.players.find((p) => p.id === you);
-  if (!me) throw new Error(`Unknown player: ${you}`);
-  const { turn } = state;
+/** Public information only (RULES 9, "Everyone"), for spectators. */
+export type SpectatorView = Omit<PlayerView, 'you' | 'yourPreference'>;
 
+export function spectatorView(state: GameState): SpectatorView {
+  const { turn } = state;
   return {
-    you,
     phase: state.phase,
     settings: { ...state.settings },
     // During the shield choice, `life` and `shield` are still empty: the dealt cards stay hidden.
@@ -53,13 +52,24 @@ export function viewFor(state: GameState, you: PlayerId): PlayerView {
     })),
     drawDeckCount: state.drawDeck.length,
     sidePot: [...state.sidePot],
-    turn: turn && {
-      player: turn.player,
-      isHunter: turn.isHunter,
-      hasDrawn: turn.drawn !== null,
-      drawnCard: turn.player === you && turn.drawnVisible ? turn.drawn : null,
+    turn: turn && { player: turn.player, isHunter: turn.isHunter, hasDrawn: turn.drawn !== null, drawnCard: null },
+    winner: state.winner,
+  };
+}
+
+export function viewFor(state: GameState, you: PlayerId): PlayerView {
+  const me = state.players.find((p) => p.id === you);
+  if (!me) throw new Error(`Unknown player: ${you}`);
+  const { turn } = state;
+  const view = spectatorView(state);
+
+  return {
+    ...view,
+    you,
+    turn: view.turn && {
+      ...view.turn,
+      drawnCard: turn!.player === you && turn!.drawnVisible ? turn!.drawn : null,
     },
     yourPreference: me.preference,
-    winner: state.winner,
   };
 }

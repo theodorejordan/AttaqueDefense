@@ -98,20 +98,24 @@ export function chooseShield(state: GameState, playerId: PlayerId, cardIndex: nu
   player.life = player.dealt.filter((_, i) => i !== cardIndex);
   player.dealt = [];
   const events: GameEvent[] = [{ type: 'shieldChosen', player: playerId }];
-
-  if (next.players.every(hasChosenShield)) {
-    const first = firstPlayer(next);
-    next.phase = 'playing';
-    next.turn = { player: first, drawn: null, drawnVisible: false, isHunter: false, resumeAfter: first };
-    events.push({ type: 'gameStarted', firstPlayer: first }, { type: 'turnStarted', player: first });
-  }
+  startIfShieldsChosen(next, events);
   return { state: next, events };
+}
+
+/** Starts the game once every player still in it has chosen. Mutates `state`. */
+export function startIfShieldsChosen(state: GameState, events: GameEvent[]) {
+  if (!state.players.every(hasChosenShield)) return;
+  const first = firstPlayer(state);
+  state.phase = 'playing';
+  state.turn = { player: first, drawn: null, drawnVisible: false, isHunter: false, resumeAfter: first };
+  events.push({ type: 'gameStarted', firstPlayer: first }, { type: 'turnStarted', player: first });
 }
 
 /** Lowest life, then lowest shield, then random (RULES 3). */
 function firstPlayer(state: GameState): PlayerId {
   const tieRank = (id: PlayerId) => state.tieBreakOrder.indexOf(id);
-  const sorted = [...state.players].sort(
+  // A player can be eliminated before the start, after a disconnection (RULES 10).
+  const sorted = state.players.filter((p) => !p.eliminated).sort(
     (a, b) =>
       sumValues(a.life) - sumValues(b.life) ||
       cardValue(a.shield!) - cardValue(b.shield!) ||

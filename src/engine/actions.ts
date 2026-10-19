@@ -1,7 +1,7 @@
 // See docs/RULES.md sections 4 to 8.
 import { type Card, cardValue, sumValues } from './cards.ts';
 import { type CardLocation, chooseDamageOption } from './damage.ts';
-import { chooseShield } from './setup.ts';
+import { chooseShield, startIfShieldsChosen } from './setup.ts';
 import {
   type ActionType,
   type Command,
@@ -218,17 +218,52 @@ function eliminate(state: GameState, player: Player, events: GameEvent[]) {
   events.push({ type: 'eliminated', player: player.id });
 }
 
+/**
+ * RULES 10: the game waited too long for a disconnected player. Called by the server, never by a player.
+ * No hunter turn, and it does not count towards the hunter setting.
+ */
+export function eliminateAfterTimeout(state: GameState, playerId: PlayerId): Result {
+  if (state.phase === 'finished') throw new IllegalMoveError('The game is over');
+  const isTheirTurn = state.turn?.player === playerId;
+  // A hunter is already eliminated: only their hunter turn is left to cancel.
+  if (getPlayer(state, playerId).eliminated && !isTheirTurn) throw new IllegalMoveError('Already eliminated');
+
+  const next = cloneState(state);
+  const events: GameEvent[] = [{ type: 'timedOut', player: playerId }];
+  const player = getPlayer(next, playerId);
+  if (!player.eliminated) {
+    next.sidePot.push(...player.dealt);
+    player.dealt = [];
+    eliminate(next, player, events);
+  }
+  const turn = next.turn;
+  if (isTheirTurn && turn?.drawn) {
+    next.sidePot.push(turn.drawn);
+    turn.drawn = null;
+    turn.drawnVisible = false;
+  }
+
+  if (endIfLastStanding(next, events)) return { state: next, events };
+  if (next.phase === 'choosingShields') startIfShieldsChosen(next, events);
+  else if (isTheirTurn) endTurn(next, null, events);
+  return { state: next, events };
+}
+
+/** RULES 8.1: the last player standing wins. Returns true if the game is over. */
+function endIfLastStanding(state: GameState, events: GameEvent[]): boolean {
+  const alive = alivePlayerIds(state);
+  if (alive.length > 1) return false;
+  state.phase = 'finished';
+  state.winner = alive[0] ?? null;
+  state.turn = null;
+  events.push({ type: 'gameOver', winner: state.winner });
+  return true;
+}
+
 /** RULES 4 steps 3-4 and 8.2. */
 function endTurn(state: GameState, eliminated: PlayerId | null, events: GameEvent[]) {
   const turn = state.turn!;
-  const alive = alivePlayerIds(state);
-  if (alive.length <= 1) {
-    state.phase = 'finished';
-    state.winner = alive[0] ?? null;
-    state.turn = null;
-    events.push({ type: 'gameOver', winner: state.winner });
-    return;
-  }
+  if (endIfLastStanding(state, events)) return;
 
   if (eliminated) {
     // The first `hunters` eliminated players get a hunter turn (RULES 8.2).

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { draw, legalPlays, play } from './actions.ts';
+import { draw, eliminateAfterTimeout, legalPlays, play } from './actions.ts';
 import type { ActionType, GameState, PlayerId } from './state.ts';
 import { card, cards, makePlayer, makeState, testSettings, values } from './test-helpers.ts';
 
@@ -227,5 +227,46 @@ describe('end of the game (RULES 8)', () => {
     state = drawAndPlay(state, 'attack', 'A', '5').state; // B eliminates A
     expect(state.phase).toBe('finished');
     expect(state.winner).toBe('C');
+  });
+});
+
+describe('timeout elimination (RULES 10)', () => {
+  it('eliminates the active player, discards their drawn card and passes the turn', () => {
+    const players = fourPlayers();
+    players[0]!.munitions = cards('4');
+    const drawn = draw(makeState(players, { drawDeck: cards('9') }), 'A').state;
+    const { state: next, events } = eliminateAfterTimeout(drawn, 'A');
+    expect(player(next, 'A').eliminated).toBe(true);
+    expect(values(next.sidePot)).toEqual([5, 5, 5, 4, 9]);
+    expect(next.turn).toMatchObject({ player: 'B', isHunter: false, drawn: null });
+    expect(events.map((e) => e.type)).toEqual(['timedOut', 'eliminated', 'turnStarted']);
+  });
+
+  it('does not count towards the hunter setting', () => {
+    const players = fourPlayers();
+    players[2]!.life = cards('2');
+    let state = eliminateAfterTimeout(makeState(players), 'A').state; // B's turn, no hunter for A
+    expect(state.eliminationCount).toBe(0);
+    state = drawAndPlay(state, 'attack', 'C', '5').state;
+    expect(state.turn).toMatchObject({ player: 'C', isHunter: true });
+  });
+
+  it('cancels a hunter turn, and play resumes', () => {
+    const players = fourPlayers();
+    players[1]!.eliminated = true;
+    players[1]!.life = [];
+    const state = makeState(players, {
+      turn: { player: 'B', drawn: null, drawnVisible: false, isHunter: true, resumeAfter: 'C' },
+    });
+    expect(eliminateAfterTimeout(state, 'B').state.turn).toMatchObject({ player: 'D', isHunter: false });
+  });
+
+  it('ends the game when one player is left', () => {
+    const players = ['A', 'B', 'C'].map((id) => makePlayer(id));
+    players[2]!.eliminated = true;
+    players[2]!.life = [];
+    const { state: next } = eliminateAfterTimeout(makeState(players), 'A');
+    expect(next.phase).toBe('finished');
+    expect(next.winner).toBe('B');
   });
 });

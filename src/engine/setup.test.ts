@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { eliminateAfterTimeout } from './actions.ts';
 import { cardKey } from './cards.ts';
 import { createRng } from './rng.ts';
 import { DEFAULT_MAX_MUNITIONS, chooseShield, createGame } from './setup.ts';
@@ -103,6 +104,15 @@ describe('chooseShield', () => {
     const next = chooseAll(state, 3);
     expect(next.phase).toBe('playing');
     expect(next.turn?.player).toBe('p1');
+  });
+
+  it('starts without a player eliminated after a disconnection (RULES 10)', () => {
+    const state = choosing([['K', 'K', 'K', 'A'], ['2', '2', '2', 'A'], ['5', '5', '5', 'A']]);
+    const timedOut = eliminateAfterTimeout(state, 'p1').state;
+    expect(values(timedOut.sidePot)).toEqual([2, 2, 2, 1]);
+    const next = chooseShield(chooseShield(timedOut, 'p0', 3).state, 'p2', 3).state;
+    expect(next.phase).toBe('playing');
+    expect(next.turn?.player).toBe('p2');
   });
 
   it('breaks a life tie with the lowest shield, then the random tie-break order', () => {
