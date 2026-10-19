@@ -168,8 +168,15 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 | Draw deck | Nobody (only its card count) |
 | Damage preference | Only its owner |
 
-## 10. Online-specific rules (timers, disconnections)
-To decide.
+## 10. Online-specific rules (disconnections)
+- A player who disconnects keeps their seat. When they come back, they find the game as it is, including a card they had already drawn.
+- While they are away, the game goes on without them, except when it needs them: their turn, their hunter turn,
+  or the shield choice at setup. Then the game waits for them.
+- If the game has been waiting for a disconnected player for **1 minute**, they are eliminated. Their cards go to the side pot (8.1),
+  including a card they had already drawn.
+- This elimination does **not** give a hunter turn, and does **not** count towards the hunter setting:
+  with "first player eliminated", the next player eliminated in play is still the hunter.
+- No timer for a player who stays connected but does not play.
 
 ## Open questions
 None for now.
@@ -186,3 +193,6 @@ None for now.
   All settings are chosen before the game starts.
 - **2026-10-16**: Running out of cards stays possible in rare cases (about 2 in 10,000 random-bot games with 8 players and one deck).
   Owner accepts it: no rule for now, to revisit only if it happens in real games. Max munitions: 1–10 for every setup.
+- **2026-10-19**: Disconnections (section 10): the game waits for a disconnected player only when it needs them, and eliminates them
+  after 1 minute of waiting. No hunter turn for that elimination, and it does not count towards the hunter setting.
+  A card they had already drawn goes to the side pot with their other cards. No timer for connected players.

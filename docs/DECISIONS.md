@@ -34,6 +34,26 @@ Rule clarifications go in `RULES.md`, not here.
   - Bots have names. Faces from photos: postponed (privacy in a public repo, weight on mobile data).
 - **Turn in two engine steps** (2026-10-16): `draw`, then `play(action, target)`. The drawn card stays pending in between
   (also covers a disconnect mid-turn). Matches the owner's UI flow: card shown beside the deck → choose action → choose player.
+  Changed 2026-10-19: the UI now asks for the player first, then the action (see UI > Turn flow). No engine change: `play` gets both at once.
+
+## Lobby and server (2026-10-19)
+
+- **Host**: the first human to join. They change the settings, add and remove bots, start the game, and send everyone
+  back to the lobby after a game. If the host leaves, the next human (in joining order) becomes host.
+- **Lobby**: shows every seat (humans and bots). Anyone can join while the lobby is open, up to 10 seats.
+  A human disconnected from the lobby for 1 minute loses their seat, so a closed tab never blocks the start.
+- **Spectators**: someone who opens the link during a game watches it, with public information only (RULES 9).
+  They can take a seat once everyone is back in the lobby.
+- **After a game**: everyone goes back to the lobby with the same seats and bots, ready for a rematch.
+- **Future**: a main page where players create a lobby; the settings will move there. This will replace "one game at a time per server".
+- **Messages** ([Socket.IO](https://socket.io/docs/v4/)): each client request gets an
+  [acknowledgement](https://socket.io/docs/v4/emitting-events/#acknowledgements) (ok or error message).
+  After each change, every client gets its full view (small) plus the new public events. The full event log is sent on (re)connection only.
+- **Reconnection token**: random UUID given on joining. Stored in `localStorage`, or `sessionStorage` in dev mode
+  so each browser tab is a separate player.
+- **Dev mode**: the server runs Vite in [middleware mode](https://vite.dev/guide/ssr#setting-up-the-dev-server):
+  one command, one port, same URL as in production.
+- **Step 3 client**: a throwaway debug page (raw buttons, state as text). The real UI comes in step 4.
 
 ## Access / networking (2026-10-16)
 
@@ -67,6 +87,23 @@ Two use cases, two commands:
   - **Layout** (desktop and mobile): each player sees **their own cards in front of them** (bottom of the screen),
     the **side pot and draw deck in the middle**, and the **other players around the middle in playing order**.
     No table drawn: just names with their cards.
+- **Turn flow** (2026-10-19):
+  1. Click the draw deck to draw. The card appears beside the deck: face-down for everyone, face-up only for the
+     active player if their shield is an Ace (RULES 5.4). No text announces the peek.
+  2. Click a player's area (cards + name) to select them. Not final: click elsewhere or press Esc to change.
+  3. Three buttons next to the drawn card, in the middle, naming the player ("Attack B", "Shield B", "Munition B").
+     Actions that are illegal on that player are disabled; players themselves are never greyed out.
+     Clicking a button sends the move. No confirmation step: selecting the player is the safety net.
+  - The buttons never cover a player's area: other players' cards must stay visible.
+- **Animations** (2026-10-19): sober, plain CSS ([3D transforms](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_transforms/Using_CSS_transforms)), no library.
+  - Attack: the attack cards flip in the air and land on the target (mostly on the shield), then stay 3–4 s while life points update.
+  - Defense: the card flips face-up onto the target's shield spot. Munition: it slides face-down onto the target's munition stack.
+  - **The wait is client-side**: the server applies moves at once and sends events; each device plays them in order
+    and keeps its deck disabled until its own animations end.
+- **Main info text** (2026-10-19): in the middle, above the deck: whose turn it is, hunter turns, who hit whom.
+- **Game log** (2026-10-19): every player can open it on their device at any time. The server keeps the event history
+  and sends it to a player who reconnects.
+- **Damage preference** (2026-10-19): bottom right for now, placement to be revisited.
 
 ## Repository and versioning (2026-10-16)
 
