@@ -50,6 +50,7 @@ describe('lobby', () => {
     join('b', 'Bob');
     room.connect('v', undefined);
     expect(view('v').you).toBeNull();
+    expect(view('a').spectatorCount).toBe(1);
     expect(view('v').hostId).toBe(view('a').you);
     expect(view('v').members.map((m) => m.name)).toEqual(['Alice', 'Bob']);
   });

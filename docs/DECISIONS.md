@@ -219,6 +219,10 @@ Two use cases, two commands:
   [Fontsource](https://fontsource.org/) npm packages, latin subset only (French accents included), bundled with the client.
   Colours are CSS variables in `src/client/styles/base.css`. The `Card` piece draws everything in CSS and inline SVG
   (no images): its size follows one variable, the card width. Dev page: `/gallery.html` (not in the build).
+- **Step 4c, lobby** (2026-10-22): `/` is the new UI, the step 3 debug page moved to `/debug.html` and is used to play
+  until the table exists (same tab = same seat). Lobby as mocked; the chat panel sits under the settings (right column).
+  Joining uses a **temporary name field** until accounts exist. `RoomView.spectatorCount` counts tabs without a seat.
+  Every screen reads the server state through `src/client/connection.ts`; refused requests show as a short message.
 
 ## Accounts (2026-10-22, owner, to design later)
 

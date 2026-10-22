@@ -24,7 +24,8 @@ Last updated: 2026-10-22. Update this file whenever a step starts or ends, or a 
    Later options: card counts, life totals, goofy card backs (chosen in the lobby), profile pictures.
    To design when building: in-game chat (bottom right), pause / preferences menu (damage preference moves there).
    Step 4 sub-steps (plan approved 2026-10-22): 4a server side (flip, "looking at", chat) **done**; 4b basics (Preact,
-   colours, self-hosted fonts, Card piece, texts) **done**; next 4c lobby, then 4d table, 4e chat and panels, 4f animations, 4g end of game.
+   colours, self-hosted fonts, Card piece, texts) **done**; 4c lobby **done**
+   (games are played on `/debug.html` until 4d); next 4d table, 4e chat and panels, 4f animations, 4g end of game.
 
 ## Pending discussions (owner input needed)
 - **Lobby settings**: settled (2026-10-19), nothing more than hunters, number of decks and max munitions.

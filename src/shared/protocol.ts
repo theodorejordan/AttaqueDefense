@@ -25,6 +25,8 @@ export interface RoomView {
   game: PlayerView | SpectatorView | null;
   /** The game stopped because no cards were left (RULES clarifications log). */
   outOfCards: boolean;
+  /** Connected browser tabs without a seat: lobby visitors, or spectators during a game. */
+  spectatorCount: number;
   /** The player the active player is looking at, while choosing an action (RULES 10). Public. */
   lookingAt: PlayerId | null;
 }

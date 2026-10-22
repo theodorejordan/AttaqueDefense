@@ -1,4 +1,4 @@
-// Throwaway debug page for roadmap step 3: raw buttons and state as text. The real UI comes in step 4.
+// Throwaway debug page of roadmap step 3 (/debug.html): raw buttons and state as text, to play until the real table (step 4d).
 import { type Socket, io } from 'socket.io-client';
 import { CARDS_DEALT } from '../engine/setup.ts';
 import { playsFor } from '../engine/actions.ts';

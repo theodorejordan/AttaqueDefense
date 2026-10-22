@@ -341,6 +341,7 @@ export class Room {
       deckCounts: allowedDeckCounts(this.#seats.length),
       game: game && (isPlaying ? viewFor(game, seatId!) : spectatorView(game)),
       outOfCards: this.#outOfCards,
+      spectatorCount: [...this.#clients.values()].filter((seat) => seat === null).length,
       lookingAt: this.#lookingAt,
     };
   }
