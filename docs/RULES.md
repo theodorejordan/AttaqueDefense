@@ -139,7 +139,8 @@ If another player replaces their defence with the Defence action, it is not dest
 Lost munitions go to the side pot face-up, **after** the damage is resolved (so they never serve as a replacement card for that attack).
 
 ## 7. Draw deck running out
-When a card must be drawn and the draw deck is empty, the side pot is **flipped over without shuffling** and becomes the new draw deck.
+When a player must draw and the draw deck is empty, that player first **flips the side pot over without shuffling**:
+it becomes the new draw deck. This is a separate action, before the draw (also during a hunter turn).
 The most recently discarded cards end up at the bottom, the oldest ones on top.
 
 ## 8. Elimination and end of the game
@@ -205,3 +206,5 @@ None for now.
   Changing a player's existing defence is "Change … defence" (not "swap": the old card goes to the side pot).
 - **2026-10-22**: Online, the player the active player is looking at is public (section 10, "Looking at a player"):
   it lets the others see an attack coming and talk about it in the chat.
+- **2026-10-22**: Flipping the side pot (section 7) is an action of the player who must draw, done before drawing,
+  instead of happening automatically inside the draw. Same result, but the table sees it happen.

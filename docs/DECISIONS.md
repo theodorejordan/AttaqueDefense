@@ -186,6 +186,11 @@ Two use cases, two commands:
   - **Thin card typography** (owner): light corner numbers, smaller suit symbols, fine lines on court cards.
   - **Two outlines** (owner): a **grey** outline around the player whose turn it is, a **black** outline around the player
     being looked at (black wins when they are the same player).
+  - **Flipping the side pot** (owner, 2026-10-22, RULES 7): when the deck is empty, the player whose turn it is clicks the
+    side pot to flip it ("Your turn · Flip the side pot"); the stack flips over and slides to the deck spot; then they click
+    the deck to draw as usual. Chosen over a single click (flip + draw together) because it is a fun table moment.
+    Code impact (step 4): new engine command (e.g. `flip`), legal only for the player who must draw, before drawing, with an
+    empty deck; `draw` then refuses an empty deck. Bots and the 1-minute disconnection wait cover it like any other action.
   - Suit symbols **filled** (black or red); the abstract court patterns stay outlined.
   - Player names stay **upright** (readable) while their cards face the centre. Room next to the name may hold the profile picture later.
   - **Ranking** (bottom left): one empty slot per player from 1st to last, filled from the bottom each time a player is eliminated.

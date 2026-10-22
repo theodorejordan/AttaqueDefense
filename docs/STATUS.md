@@ -23,6 +23,7 @@ Last updated: 2026-10-22. Update this file whenever a step starts or ends, or a 
    Next: owner's last remarks on the full mockup, then build the desktop UI. Not mocked yet: lobby and end-of-game screens.
    Later options: card counts, life totals, goofy card backs (chosen in the lobby), profile pictures.
    To design when building: in-game chat (bottom right), pause / preferences menu (damage preference moves there).
+   Engine change to do with step 4: flipping the side pot becomes a player action before drawing (RULES 7, 2026-10-22).
 
 ## Pending discussions (owner input needed)
 - **Lobby settings**: settled (2026-10-19), nothing more than hunters, number of decks and max munitions.
