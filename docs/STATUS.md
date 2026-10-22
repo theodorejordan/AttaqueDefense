@@ -20,7 +20,7 @@ Last updated: 2026-10-22. Update this file whenever a step starts or ends, or a 
 2. Language switch (EN/FR): done 2026-10-19 (`src/client/i18n/`). Owner trusts the French texts as they are; adjust later if needed.
 3. Bots: settled for now (2026-10-22), see `DECISIONS.md` > Bots. They come **after** `v0.1.0`.
 4. **Step 4 in progress** (started 2026-10-22): table mockups done over 3 rounds (decisions in `DECISIONS.md` > UI).
-   Next: owner's last remarks on the full mockup, then build the desktop UI. Not mocked yet: lobby and end-of-game screens.
+   Lobby and end-of-game screens mocked too. Next: step 4 implementation plan, then build the desktop UI.
    Later options: card counts, life totals, goofy card backs (chosen in the lobby), profile pictures.
    To design when building: in-game chat (bottom right), pause / preferences menu (damage preference moves there).
    Engine change to do with step 4: flipping the side pot becomes a player action before drawing (RULES 7, 2026-10-22).
@@ -29,6 +29,7 @@ Last updated: 2026-10-22. Update this file whenever a step starts or ends, or a 
 - **Lobby settings**: settled (2026-10-19), nothing more than hunters, number of decks and max munitions.
 - **Bots (step 7)**: levels scaled like Stockfish, by rating (about 800 / 1200 / 1600 / 2000 Elo). Godlike never cheats.
   Bots have names; faces from photos postponed. Details to discuss again at step 7.
+- **Accounts** (owner, 2026-10-22): email + password, official pseudo, future leaderboards. Design and timing to discuss (`DECISIONS.md` > Accounts).
 - **Long-term**: bot-vs-bot simulations, machine learning and deep learning to find the best moves per game state,
   especially in the endgame (owner, 2026-10-19).
 

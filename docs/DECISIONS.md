@@ -191,6 +191,23 @@ Two use cases, two commands:
     the deck to draw as usual. Chosen over a single click (flip + draw together) because it is a fun table moment.
     Code impact (step 4): new engine command (e.g. `flip`), legal only for the player who must draw, before drawing, with an
     empty deck; `draw` then refuses an empty deck. Bots and the 1-minute disconnection wait cover it like any other action.
+- **Lobby and end of game, mockup** (2026-10-22, owner):
+  - **Lobby**, same visual style: players on the left (name, you / host / bot tags, "Remove" on bots for the host,
+    "Add bot", spectator count), game settings on the right (hunters, decks with the allowed choices, max munitions),
+    "Start game" for the host (needs at least 3 seats). Card-back choice comes later.
+  - **End of game**: a modal over the table with the winner, the final ranking, a few fun statistics computed from the
+    public event log (biggest hit, most munitions given, defence that stopped the most attacks, most attacked, fastest exit),
+    and two buttons: **Play again** (back to the same lobby) and **Quit**. Until the future main page exists,
+    Quit frees the seat and shows a simple "You left the table" screen.
+
+## Accounts (2026-10-22, owner, to design later)
+
+- Players will have **accounts**: login with email and password, and an official pseudo (unique display name),
+  so that leaderboards and stats across games become possible later. No name field in the lobby: the name comes from the account.
+- Not built yet. It needs a database (persistent storage on Fly.io), secure password storage and sessions, and handling of
+  personal data (emails: [GDPR](https://www.cnil.fr/fr/reglement-europeen-protection-donnees)). To discuss before building:
+  timing (before or after `v0.1.0`), email + password vs. passwordless login links or "Sign in with Google/Discord",
+  guest play, and what happens to bots and spectators.
   - Suit symbols **filled** (black or red); the abstract court patterns stay outlined.
   - Player names stay **upright** (readable) while their cards face the centre. Room next to the name may hold the profile picture later.
   - **Ranking** (bottom left): one empty slot per player from 1st to last, filled from the bottom each time a player is eliminated.
