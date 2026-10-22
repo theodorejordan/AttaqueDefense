@@ -46,7 +46,9 @@ and imports use the `.ts` extension.
   - `room.ts`: the single room (lobby, host, bots, game, event log, disconnection timers, "looking at", chat). No network code, tested with fake timers.
   - `validate.ts`: checks the shape of every client payload (clients are untrusted).
   - `index.ts`: HTTP + Socket.IO wiring; `--dev` serves the client through Vite middleware mode.
-- `src/client/`: throwaway debug page (step 3). The real UI comes in step 4.
+- `src/client/`: the debug page of step 3 (`index.html`, `main.ts`) until the real UI replaces it (step 4, Preact + TSX).
+  - `cards/`: the `Card` piece (`Card.tsx`, `card.css`) and what is drawn on faces (`faces.ts`: suit paths, pips, court patterns).
+  - `styles/base.css`: colours (CSS variables) and the self-hosted fonts. `gallery.html`: dev page showing every card.
   - `i18n/`: English and French texts (`en.ts`, `fr.ts`, same keys, checked by TypeScript), `t`, language detection and switch.
     Every text a player sees goes through `t`; the server only sends codes and data.
 

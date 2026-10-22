@@ -214,6 +214,11 @@ Two use cases, two commands:
     Sent to every connected client with the `chat` Socket.IO event; the last 100 messages are sent on (re)connection.
     Spectators and lobby visitors have no name yet: their messages carry `name: null` and each client shows "Spectator".
     Accounts will give everyone a name later.
+- **Step 4b, basics** (2026-10-22): Preact through Vite's built-in JSX support (`tsconfig.json` `jsxImportSource`),
+  no Babel plugin, so no hot component reload: the page reloads on change. Fonts from the
+  [Fontsource](https://fontsource.org/) npm packages, latin subset only (French accents included), bundled with the client.
+  Colours are CSS variables in `src/client/styles/base.css`. The `Card` piece draws everything in CSS and inline SVG
+  (no images): its size follows one variable, the card width. Dev page: `/gallery.html` (not in the build).
 
 ## Accounts (2026-10-22, owner, to design later)
 

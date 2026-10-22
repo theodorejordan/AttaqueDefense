@@ -1,6 +1,6 @@
 // English texts. `fr.ts` must have exactly the same keys: TypeScript checks it.
 // Vocabulary: docs/DECISIONS.md > UI > Vocabulary and Languages.
-import type { Rank } from '../../engine/cards.ts';
+import type { Rank, Suit } from '../../engine/cards.ts';
 import { MAX_PLAYERS, MIN_PLAYERS } from '../../engine/setup.ts';
 import type { DamagePreference, Settings } from '../../engine/state.ts';
 import { type ErrorCode, MAX_CHAT_LENGTH, MAX_NAME_LENGTH } from '../../shared/protocol.ts';
@@ -10,6 +10,13 @@ const ranks: Record<Rank, string> = {
   A: 'A', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7',
   '8': '8', '9': '9', '10': '10', J: 'J', Q: 'Q', K: 'K',
 };
+
+const rankNames: Record<Rank, string> = {
+  A: 'Ace', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7',
+  '8': '8', '9': '9', '10': '10', J: 'Jack', Q: 'Queen', K: 'King',
+};
+
+const suitNames: Record<Suit, string> = { hearts: 'hearts', diamonds: 'diamonds', clubs: 'clubs', spades: 'spades' };
 
 const preferences: Record<DamagePreference, string> = {
   normal: 'Normal',
@@ -42,6 +49,11 @@ export const en = {
   title: 'AttaqueDéfense (debug)',
   nobody: 'nobody',
   ranks,
+  /** Read by screen readers. */
+  cards: {
+    name: (rank: Rank, suit: Suit) => `${rankNames[rank]} of ${suitNames[suit]}`,
+    faceDown: 'Face-down card',
+  },
   preferences,
   errors,
   lobby: {

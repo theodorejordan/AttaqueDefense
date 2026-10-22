@@ -1,9 +1,17 @@
 // French texts, same keys as `en.ts` (checked by TypeScript).
 // Vocabulary confirmed by the owner: docs/DECISIONS.md > UI > Languages. Face cards: R, D, V.
+import type { Rank, Suit } from '../../engine/cards.ts';
 import { MAX_PLAYERS, MIN_PLAYERS } from '../../engine/setup.ts';
 import { MAX_CHAT_LENGTH, MAX_NAME_LENGTH } from '../../shared/protocol.ts';
 import type { Messages } from './en.ts';
 import { plural } from './plural.ts';
+
+const rankNames: Record<Rank, string> = {
+  A: 'As', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7',
+  '8': '8', '9': '9', '10': '10', J: 'Valet', Q: 'Dame', K: 'Roi',
+};
+
+const suitNames: Record<Suit, string> = { hearts: 'cœur', diamonds: 'carreau', clubs: 'trèfle', spades: 'pique' };
 
 export const fr: Messages = {
   title: 'AttaqueDéfense (debug)',
@@ -11,6 +19,10 @@ export const fr: Messages = {
   ranks: {
     A: 'A', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7',
     '8': '8', '9': '9', '10': '10', J: 'V', Q: 'D', K: 'R',
+  },
+  cards: {
+    name: (rank, suit) => `${rankNames[rank]} de ${suitNames[suit]}`,
+    faceDown: 'Carte face cachée',
   },
   preferences: {
     normal: 'Normale',

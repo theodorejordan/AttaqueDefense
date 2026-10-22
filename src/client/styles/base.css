@@ -1,0 +1,37 @@
+/* Colours and fonts of the real UI (docs/DECISIONS.md > UI > Visual style). Light theme only for now. */
+
+/* Self-hosted fonts, latin subset (covers French accents): no request to Google (docs/DECISIONS.md > UI > Fonts). */
+@import '@fontsource/inter-tight/latin-400.css';
+@import '@fontsource/inter-tight/latin-500.css';
+@import '@fontsource/inter-tight/latin-600.css';
+@import '@fontsource/outfit/latin-300.css';
+@import '@fontsource/outfit/latin-400.css';
+
+:root {
+  --ground: #dcd7cc;
+  --felt: #eeeae2;
+  --ink: #1b1b1f;
+  --muted: #56555c;
+  --line: rgb(27 27 31 / 0.3);
+
+  --card-face: #fbfaf6;
+  --card-ink: #1b1b1f;
+  --card-red: #c0392b;
+  --card-hatch: rgb(27 27 31 / 0.12);
+
+  /* Outlines around a player's cards: whose turn it is, who is looked at, the hunter. */
+  --outline-turn: rgb(27 27 31 / 0.3);
+  --outline-look: #1b1b1f;
+  --outline-hunter: #8a5a2b;
+  --glow: rgb(255 255 255 / 0.9);
+
+  --font-ui: 'Inter Tight', system-ui, sans-serif;
+  --font-card: 'Outfit', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
