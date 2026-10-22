@@ -37,6 +37,12 @@ Rule clarifications go in `RULES.md`, not here.
     what the bot knows, play them out, keep the best win rate. It is the baseline any learned bot must beat, it produces
     training data (state → win rate per move), and it can power an endgame analyzer. Deep learning comes after.
     Not now: later, with roadmap step 7. A bot's knowledge = its view + the public log + its own memories (e.g. an Ace peek).
+  - **Levels scaled by rating** (2026-10-22, owner): like [Stockfish](https://stockfishchess.org/)'s strength levels in chess,
+    each level should feel like a rating step, roughly 800 / 1200 / 1600 / 2000 Elo (beginner / confirmed / expert / godlike).
+    Strength can be tuned with the number of Monte Carlo simulations per move and some deliberate mistakes; ratings measured
+    with bot-vs-bot tournaments (a multiplayer rating system, since games have 3 to 10 players). Details at step 7.
+  - **Timing** (2026-10-22, owner): smarter bots come **after** `v0.1.0`, not urgent.
+  - **Owner background** (2026-10-22): no ML or Python yet, keen to learn through this project. Explain from the basics.
 - **Turn in two engine steps** (2026-10-16): `draw`, then `play(action, target)`. The drawn card stays pending in between
   (also covers a disconnect mid-turn). Matches the owner's UI flow: card shown beside the deck → choose action → choose player.
   Changed 2026-10-19: the UI now asks for the player first, then the action (see UI > Turn flow). No engine change: `play` gets both at once.
@@ -81,6 +87,14 @@ Two use cases, two commands:
 - Alternatives considered: localtunnel (unreliable, password interstitial), bore (no HTTPS),
   localhost.run (commercial), router port forwarding (exposes home IP), paid/freemium hosting (rejected: risk of billing).
 - Host setup: macOS firewall must allow incoming connections on first launch; guest Wi-Fi networks with client isolation block LAN mode.
+- **Online hosting on [Fly.io](https://fly.io/docs/)** (2026-10-22, owner): friends from work use it. This changes the
+  "never billed" stance above: Fly has no free tier for new accounts, so a card is on file. Accepted budget: about 1–2 € per month.
+  - **Exactly one machine**: the game lives in the server's memory, so a second machine would host a different game.
+  - **[Autostop/autostart](https://fly.io/docs/launch/autostop-autostart/)** (`auto_stop_machines = "stop"`,
+    `min_machines_running = 0`): the machine stops when nobody is connected (no CPU/RAM billed, only a little storage)
+    and starts on the next visit (a few seconds' wait). A stop or a redeploy ends the game in memory, which is fine when nobody is on.
+  - No dedicated IPv4 (paid extra). No hard spending cap is confirmed: check Fly's billing settings for alerts or limits.
+  - Open: whether Fly replaces the Cloudflare tunnel (`npm run share`) in roadmap step 5.
 
 ## UI (2026-10-16)
 
@@ -125,6 +139,42 @@ Two use cases, two commands:
   - Done early, at the owner's request (2026-10-19): `src/client/i18n/`, used by the debug page with an EN | FR switch. The real UI (step 4) reuses it.
   - French terms (confirmed by the owner 2026-10-19): Attaque, Défense, Munition, points de vie / cartes de vie,
     Pioche (draw deck), Défausse (side pot), Chasseur (hunter), "Changer la défense de B" / "Donner une défense à B".
+
+- **Visual style, mockup round 1** (2026-10-22, owner):
+  - **Outline cards** (double-line contour, like the Contours deck), but **classic**: pips laid out as on real cards
+    (10 of spades = ten spades), drawn court figures for J, Q, K, corner indices.
+  - **Defence in front of the 3 life cards**, overlapping them.
+  - **Munitions as big as life cards**, placed beside them (placement confirmed).
+  - **Drawn card highlighted**, floating above the deck and the side pot (3D).
+  - **Side pot**: the last 3 cards slightly visible on the sides, under the top one.
+  - **No card counts** on the draw deck and side pot, and **no life-point totals** next to names. Both may come back later as options.
+  - **Card backs**: choice of several designs in the lobby, preferably goofy and funny. Later.
+  - **Profile pictures** on the board for each player. Approach to discuss (upload, size, privacy).
+- **Visual style, mockup round 2** (2026-10-22, owner). Replaces round 1 where they differ:
+  - Cards: **modern and abstract**, outlined (outlined suit pips, abstract geometric court cards, no drawn figures).
+  - **Classic red and black suits**. Red no longer means attack; action buttons are plain outlined buttons in a sober modern font.
+  - **Every player's cards face the centre of the table**, as at a real table (the player opposite is upside down for us;
+    the double corner indices keep values readable).
+  - **Defence on the centre side of the life cards**, overlapping them, shielding them from the other players (for us: above our cards).
+    The defence is the **same card simply turned 90°**: no special design or colour for it.
+  - A player's cards are **centred on their seat**. With munitions, life cards + munition stack are centred together
+    (the life cards shift a little to make room).
+  - **Flat top-down view**: the tilted camera was tried and dropped. No table shape drawn.
+  - **Deck and side pot side by side**. The drawn card lifts up, highlighted, between them and the active player's cards
+    (below them on our screen); deck and side pot stay as they are.
+  - **Fewer players = bigger cards**: eliminated players leave the table, the others close in and their cards grow.
+  - Usual games: 4 to 8 players (10 is rare). Design for 4–6 first.
+- **Visual style, mockup round 3** (2026-10-22, owner):
+  - **"Looking at" is public** (RULES 10): the picked player gets the selection outline on every screen and the centre text
+    says "Theo is looking at Chloé's game". A small client request to the server (checked: your turn, card drawn), broadcast
+    to all; room state, not engine state; not in the game log. Bots look at their target briefly before acting.
+  - **In-game chat**, bottom right. Details (spectators, bots, length limits) to discuss when we build it.
+  - **Damage preference** moves out of the table into a pause / preferences menu.
+  - Suit symbols **filled** (black or red); the abstract court patterns stay outlined.
+  - Player names stay **upright** (readable) while their cards face the centre. Room next to the name may hold the profile picture later.
+  - **Ranking** (bottom left): one empty slot per player from 1st to last, filled from the bottom each time a player is eliminated.
+  - **No player preselected** after drawing. The centre text guides the turn: "Your turn · Pick a player", then
+    "Pick an action for B". The three action buttons appear only once a player is picked.
 
 ## Repository and versioning (2026-10-16)
 

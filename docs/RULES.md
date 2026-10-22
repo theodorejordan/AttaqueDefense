@@ -168,8 +168,9 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 | Side pot | Everyone (face-up) |
 | Draw deck | Nobody (only its card count) |
 | Damage preference | Only its owner |
+| The player the active player is looking at (picked, before choosing an action) | Everyone (online only, section 10) |
 
-## 10. Online-specific rules (disconnections)
+## 10. Online-specific rules
 - A player who disconnects keeps their seat. When they come back, they find the game as it is, including a card they had already drawn.
 - While they are away, the game goes on without them, except when it needs them: their turn, their hunter turn,
   or the defence choice at setup. Then the game waits for them.
@@ -178,6 +179,9 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 - This elimination does **not** give a hunter turn, and does **not** count towards the hunter setting:
   with "first player eliminated", the next player eliminated in play is still the hunter.
 - No timer for a player who stays connected but does not play.
+- **Looking at a player**: when the active player picks a player (before choosing an action), everyone sees it
+  ("Theo is looking at Chloé's game"). It can change until the action is chosen, and it is not kept in the game log.
+  It warns the others, who can react in the chat.
 
 ## Open questions
 None for now.
@@ -199,3 +203,5 @@ None for now.
   A card they had already drawn goes to the side pot with their other cards. No timer for connected players.
 - **2026-10-19**: Vocabulary: what was called "shield" is called **Defence** in the game (English spelling "Defence"; French "Défense").
   Changing a player's existing defence is "Change … defence" (not "swap": the old card goes to the side pot).
+- **2026-10-22**: Online, the player the active player is looking at is public (section 10, "Looking at a player"):
+  it lets the others see an attack coming and talk about it in the chat.
