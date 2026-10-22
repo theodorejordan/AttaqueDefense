@@ -3,7 +3,7 @@
 import type { Rank } from '../../engine/cards.ts';
 import { MAX_PLAYERS, MIN_PLAYERS } from '../../engine/setup.ts';
 import type { DamagePreference, Settings } from '../../engine/state.ts';
-import { type ErrorCode, MAX_NAME_LENGTH } from '../../shared/protocol.ts';
+import { type ErrorCode, MAX_CHAT_LENGTH, MAX_NAME_LENGTH } from '../../shared/protocol.ts';
 import { plural } from './plural.ts';
 
 const ranks: Record<Rank, string> = {
@@ -33,6 +33,8 @@ const errors: Record<ErrorCode, string> = {
   gameNotOver: 'The game is not over',
   gameOver: 'The game is over',
   illegalMove: 'This move is not allowed',
+  invalidMessage: `Messages have 1 to ${MAX_CHAT_LENGTH} characters`,
+  chatTooFast: 'You are sending messages too fast',
   serverError: 'Server error',
 };
 
@@ -78,6 +80,7 @@ export const en = {
     selected: 'Selected',
     pickDefence: 'Pick your defence: ',
     card: (n: number) => `Card ${n}`,
+    flip: 'Flip the side pot',
     draw: 'Draw',
     drawn: (card: string | null) =>
       `Drawn card: ${card ? `${card} (Ace peek)` : 'face-down'}. Select a player, then: `,

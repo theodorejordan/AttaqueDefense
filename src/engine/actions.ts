@@ -31,6 +31,8 @@ export function applyCommand(state: GameState, playerId: PlayerId, command: Comm
   switch (command.type) {
     case 'chooseShield':
       return chooseShield(state, playerId, command.cardIndex);
+    case 'flipSidePot':
+      return flipSidePot(state, playerId);
     case 'draw':
       return draw(state, playerId);
     case 'play':
@@ -52,25 +54,29 @@ function requireActivePlayer(state: GameState, playerId: PlayerId) {
   return state.turn;
 }
 
-/** RULES 4 step 1. Flips the side pot when the draw deck is empty (RULES 7). */
-export function draw(state: GameState, playerId: PlayerId): Result {
+/** RULES 7: the player who must draw flips the side pot over when the draw deck is empty. */
+export function flipSidePot(state: GameState, playerId: PlayerId): Result {
   if (requireActivePlayer(state, playerId).drawn) throw new IllegalMoveError('Already drawn');
+  if (state.drawDeck.length > 0) throw new IllegalMoveError('The draw deck is not empty');
+  if (state.sidePot.length === 0) throw new OutOfCardsError('No cards left to draw');
 
   const next = cloneState(state);
-  const events: GameEvent[] = [];
-  if (next.drawDeck.length === 0) {
-    if (next.sidePot.length === 0) throw new OutOfCardsError('No cards left to draw');
-    // Flipping without shuffling: the oldest card (bottom of the side pot) ends up on top.
-    next.drawDeck = next.sidePot;
-    next.sidePot = [];
-    events.push({ type: 'deckFlipped', cardCount: next.drawDeck.length });
-  }
+  // Flipping without shuffling: the oldest card (bottom of the side pot) ends up on top.
+  next.drawDeck = next.sidePot;
+  next.sidePot = [];
+  return { state: next, events: [{ type: 'deckFlipped', player: playerId, cardCount: next.drawDeck.length }] };
+}
 
+/** RULES 4 step 1. An empty draw deck must be flipped first (RULES 7). */
+export function draw(state: GameState, playerId: PlayerId): Result {
+  if (requireActivePlayer(state, playerId).drawn) throw new IllegalMoveError('Already drawn');
+  if (state.drawDeck.length === 0) throw new IllegalMoveError('Flip the side pot first');
+
+  const next = cloneState(state);
   const turn = next.turn!;
   turn.drawn = next.drawDeck.shift()!;
   turn.drawnVisible = getPlayer(next, playerId).shield?.rank === 'A';
-  events.push({ type: 'drew', player: playerId });
-  return { state: next, events };
+  return { state: next, events: [{ type: 'drew', player: playerId }] };
 }
 
 /** Every legal play for `actor`. Only players still in the game can be targeted. */

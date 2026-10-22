@@ -64,6 +64,7 @@ export interface Play {
 
 export type Command =
   | { type: 'chooseShield'; cardIndex: number }
+  | { type: 'flipSidePot' }
   | { type: 'draw' }
   | { type: 'play'; play: Play }
   | { type: 'setPreference'; preference: DamagePreference };
@@ -74,7 +75,8 @@ export type GameEvent =
   | { type: 'gameStarted'; firstPlayer: PlayerId }
   | { type: 'turnStarted'; player: PlayerId }
   | { type: 'hunterTurn'; player: PlayerId }
-  | { type: 'deckFlipped'; cardCount: number }
+  /** The player who must draw flipped the side pot over: it is the new draw deck (RULES 7). */
+  | { type: 'deckFlipped'; player: PlayerId; cardCount: number }
   | { type: 'drew'; player: PlayerId }
   | {
       type: 'attacked';

@@ -56,6 +56,10 @@ export function parseRequest(value: unknown): Request {
       return { type: 'removeBot', botId: string(value.botId, 'bot') };
     case 'game':
       return { type: 'game', command: parseCommand(value.command) };
+    case 'look':
+      return { type: 'look', target: value.target === null ? null : string(value.target, 'target') };
+    case 'chat':
+      return { type: 'chat', text: string(value.text, 'message') };
     default:
       throw new RoomError('invalidRequest');
   }
@@ -78,8 +82,9 @@ function parseCommand(value: unknown): Command {
   switch (value.type) {
     case 'chooseShield':
       return { type: 'chooseShield', cardIndex: integer(value.cardIndex, 'card') };
+    case 'flipSidePot':
     case 'draw':
-      return { type: 'draw' };
+      return { type: value.type };
     case 'play': {
       if (!isObject(value.play)) throw new RoomError('invalidRequest', 'Invalid play');
       const { type, target } = value.play;

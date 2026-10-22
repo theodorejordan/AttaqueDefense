@@ -27,6 +27,7 @@ if (isDev) {
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer);
 const room = new Room({
   send: (clientId, update) => io.to(clientId).emit('update', update),
+  sendChat: (clientId, message) => io.to(clientId).emit('chat', message),
   rng: createRng(randomInt(2 ** 31)),
 });
 

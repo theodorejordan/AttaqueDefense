@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { draw, eliminateAfterTimeout, legalPlays, play } from './actions.ts';
-import type { ActionType, GameState, PlayerId } from './state.ts';
+import { draw, eliminateAfterTimeout, flipSidePot, legalPlays, play } from './actions.ts';
+import { type ActionType, type GameState, OutOfCardsError, type PlayerId } from './state.ts';
 import { card, cards, makePlayer, makeState, testSettings, values } from './test-helpers.ts';
 
 /** Puts `rank` on top of the draw deck, then draws and plays it. */
@@ -36,13 +36,34 @@ describe('draw', () => {
     expect(() => draw(state, 'B')).toThrow();
   });
 
-  it('flips the side pot without shuffling when the deck is empty (RULES 7)', () => {
+  it('refuses to draw from an empty deck: the side pot must be flipped first (RULES 7)', () => {
+    const state = makeState(fourPlayers(), { sidePot: cards('3', '7', 'K') });
+    expect(() => draw(state, 'A')).toThrow('Flip the side pot first');
+  });
+});
+
+describe('flipSidePot (RULES 7)', () => {
+  it('turns the side pot into the draw deck without shuffling, then the player draws', () => {
     const state = makeState(fourPlayers(), { sidePot: cards('3', '7', 'K') }); // K on top
-    const { state: next, events } = draw(state, 'A');
-    expect(values([next.turn!.drawn!])).toEqual([3]); // oldest card is now on top
-    expect(values(next.drawDeck)).toEqual([7, 13]);
-    expect(next.sidePot).toEqual([]);
-    expect(events).toContainEqual({ type: 'deckFlipped', cardCount: 3 });
+    const { state: flipped, events } = flipSidePot(state, 'A');
+    expect(values(flipped.drawDeck)).toEqual([3, 7, 13]); // oldest card is now on top
+    expect(flipped.sidePot).toEqual([]);
+    expect(events).toEqual([{ type: 'deckFlipped', player: 'A', cardCount: 3 }]);
+    expect(values([draw(flipped, 'A').state.turn!.drawn!])).toEqual([3]);
+  });
+
+  it('is only possible for the active player, before drawing, with an empty deck', () => {
+    const empty = makeState(fourPlayers(), { sidePot: cards('3', '7') });
+    expect(() => flipSidePot(empty, 'B')).toThrow('Not your turn');
+    expect(() => flipSidePot(makeState(fourPlayers(), { drawDeck: cards('5'), sidePot: cards('3') }), 'A')).toThrow(
+      'The draw deck is not empty',
+    );
+    const drawn = draw(flipSidePot(empty, 'A').state, 'A').state;
+    expect(() => flipSidePot(drawn, 'A')).toThrow('Already drawn');
+  });
+
+  it('runs out of cards when the side pot is empty too', () => {
+    expect(() => flipSidePot(makeState(fourPlayers()), 'A')).toThrow(OutOfCardsError);
   });
 });
 

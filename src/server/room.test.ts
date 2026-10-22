@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type PlayerView, createRng, randomBot } from '../engine/index.ts';
-import type { Update } from '../shared/protocol.ts';
+import type { ChatMessage, Update } from '../shared/protocol.ts';
 import { Room, type RoomOptions } from './room.ts';
 
 const MINUTE = 60_000;
@@ -8,8 +8,10 @@ const MINUTE = 60_000;
 /** A room that records what each client receives. Timers are fake: `vi.advanceTimersByTime` moves the clock. */
 function setup(options: Partial<RoomOptions> = {}) {
   const sent = new Map<string, Update[]>();
+  const chats = new Map<string, ChatMessage[]>();
   const room = new Room({
     send: (clientId, update) => sent.set(clientId, [...(sent.get(clientId) ?? []), update]),
+    sendChat: (clientId, message) => chats.set(clientId, [...(chats.get(clientId) ?? []), message]),
     rng: createRng(1),
     ...options,
   });
@@ -20,7 +22,7 @@ function setup(options: Partial<RoomOptions> = {}) {
     room.connect(clientId, undefined);
     return room.request(clientId, { type: 'join', name }).token!;
   };
-  return { room, sent, last, view, join };
+  return { room, sent, chats, last, view, join };
 }
 
 const rooms: Room[] = [];
@@ -232,5 +234,85 @@ describe('disconnections (RULES 10)', () => {
     const game = ctx.view('A').game!;
     expect(game.phase).toBe('playing');
     expect(game.players.filter((p) => p.eliminated)).toHaveLength(1);
+  });
+});
+
+describe('looking at a player (RULES 10)', () => {
+  it('shows everyone who the active player looks at, until the move is played', () => {
+    const { room, view, game, clientOf } = threeHumansPlaying();
+    const active = game().turn!.player;
+    const client = clientOf(active);
+    const other = game().players.find((p) => p.id !== active)!.id;
+    expect(() => room.request(client, { type: 'look', target: other })).toThrow('illegalMove');
+
+    room.request(client, { type: 'game', command: { type: 'draw' } });
+    room.request(client, { type: 'look', target: other });
+    expect(['A', 'B', 'C'].map((c) => view(c).lookingAt)).toEqual([other, other, other]);
+    room.request(client, { type: 'look', target: null });
+    expect(view('A').lookingAt).toBeNull();
+
+    room.request(client, { type: 'look', target: other });
+    room.request(client, { type: 'game', command: { type: 'play', play: { type: 'defense', target: other } } });
+    expect(view('A').lookingAt).toBeNull();
+  });
+
+  it('refuses other players, spectators and unknown or eliminated targets', () => {
+    const { room, game, clientOf } = threeHumansPlaying();
+    const active = game().turn!.player;
+    const client = clientOf(active);
+    room.request(client, { type: 'game', command: { type: 'draw' } });
+    const other = ['A', 'B', 'C'].find((c) => c !== client)!;
+    expect(() => room.request(other, { type: 'look', target: active })).toThrow('illegalMove');
+    room.connect('s', undefined);
+    expect(() => room.request('s', { type: 'look', target: active })).toThrow('notSeated');
+    expect(() => room.request(client, { type: 'look', target: 'nobody' })).toThrow('illegalMove');
+  });
+
+  it('makes a bot look at its target before playing', () => {
+    const { room, sent, view, join } = setup();
+    join('h', 'Human');
+    for (let i = 0; i < 3; i++) room.request('h', { type: 'addBot' });
+    room.request('h', { type: 'start' });
+    const rng = createRng(3);
+    for (let step = 0; step < 200 && view('h').game!.phase !== 'finished'; step++) {
+      const command = randomBot(view('h').game as PlayerView, rng);
+      if (command) room.request('h', { type: 'game', command });
+      else vi.advanceTimersByTime(4_000);
+    }
+    const bots = sent.get('h')!.at(-1)!.room.members.filter((m) => m.isBot).map((m) => m.id);
+    const looks = sent.get('h')!.filter((u) => u.room.lookingAt !== null && bots.includes(u.room.game!.turn!.player));
+    expect(looks.length).toBeGreaterThan(0);
+    for (const update of looks) expect(update.room.game!.turn!.hasDrawn).toBe(true);
+  });
+});
+
+describe('chat', () => {
+  it('lets players and spectators chat, in the lobby and during a game', () => {
+    const { room, chats, join } = setup();
+    join('a', 'Alice');
+    room.connect('v', undefined); // a visitor without a seat
+    room.request('a', { type: 'chat', text: '  hello  ' });
+    room.request('v', { type: 'chat', text: 'hi from the side' });
+    expect(chats.get('v')).toEqual([
+      { id: 1, from: 'p1', name: 'Alice', text: 'hello' },
+      { id: 2, from: null, name: null, text: 'hi from the side' },
+    ]);
+    expect(chats.get('a')).toEqual(chats.get('v'));
+  });
+
+  it('sends the history to a client that connects, and checks length and rate', () => {
+    const { room, last, join } = setup();
+    join('a', 'Alice');
+    room.request('a', { type: 'chat', text: 'first' });
+    room.connect('late', undefined);
+    expect(last('late').chat!.map((m) => m.text)).toEqual(['first']);
+
+    expect(() => room.request('a', { type: 'chat', text: '   ' })).toThrow('invalidMessage');
+    expect(() => room.request('a', { type: 'chat', text: 'x'.repeat(301) })).toThrow('invalidMessage');
+    room.request('a', { type: 'chat', text: 'x'.repeat(300) });
+    for (let i = 0; i < 3; i++) room.request('a', { type: 'chat', text: `spam ${i}` });
+    expect(() => room.request('a', { type: 'chat', text: 'too fast' })).toThrow('chatTooFast');
+    vi.advanceTimersByTime(10_000);
+    room.request('a', { type: 'chat', text: 'calm again' });
   });
 });

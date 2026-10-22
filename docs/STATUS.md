@@ -23,7 +23,8 @@ Last updated: 2026-10-22. Update this file whenever a step starts or ends, or a 
    Lobby and end-of-game screens mocked too. Next: step 4 implementation plan, then build the desktop UI.
    Later options: card counts, life totals, goofy card backs (chosen in the lobby), profile pictures.
    To design when building: in-game chat (bottom right), pause / preferences menu (damage preference moves there).
-   Engine change to do with step 4: flipping the side pot becomes a player action before drawing (RULES 7, 2026-10-22).
+   Step 4 sub-steps (plan approved 2026-10-22): 4a server side (flip, "looking at", chat) **done**; next 4b basics (Preact,
+   colours, self-hosted fonts, Card piece, texts), then 4c lobby, 4d table, 4e chat and panels, 4f animations, 4g end of game.
 
 ## Pending discussions (owner input needed)
 - **Lobby settings**: settled (2026-10-19), nothing more than hunters, number of decks and max munitions.

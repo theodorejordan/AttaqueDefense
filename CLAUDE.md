@@ -34,16 +34,16 @@ and imports use the `.ts` extension.
 - `src/engine/`: the rules, as pure functions. No network or UI code.
   - `state.ts`: types (`GameState`, `Settings`, `GameOptions`, `Command`, `GameEvent`), `cloneState`, errors.
   - `setup.ts`: createGame (seating, decks, dealing), blind shield choice, first player.
-  - `actions.ts`: `applyCommand` (single entry point), draw, play (attack/defense/munition), hunter, turn order, `legalPlays`.
+  - `actions.ts`: `applyCommand` (single entry point), flip the side pot, draw, play (attack/defense/munition), hunter, turn order, `legalPlays`.
   - `damage.ts`: damage options, replacement-card search, preferences, fallbacks.
   - `view.ts`: `viewFor(state, player)`, the only data a client or bot may receive.
   - `bots/random.ts`: random bot (uses a `PlayerView`, never the full state).
   - `rng.ts`: seeded RNG; randomness is always injected, never `Math.random()` inside the engine.
   - `*.test.ts`: unit tests built from RULES examples; `simulation.test.ts` plays random games and checks invariants.
   - `actions.ts` also has `eliminateAfterTimeout` (RULES 10), called by the server only. `view.ts` also has `spectatorView`.
-- `src/shared/protocol.ts`: messages between browser and server (`Request` in, `Update` out, `Reply` acknowledgement).
+- `src/shared/protocol.ts`: messages between browser and server (`Request` in, `Update` and `chat` out, `Reply` acknowledgement).
 - `src/server/`:
-  - `room.ts`: the single room (lobby, host, bots, game, event log, disconnection timers). No network code, tested with fake timers.
+  - `room.ts`: the single room (lobby, host, bots, game, event log, disconnection timers, "looking at", chat). No network code, tested with fake timers.
   - `validate.ts`: checks the shape of every client payload (clients are untrusted).
   - `index.ts`: HTTP + Socket.IO wiring; `--dev` serves the client through Vite middleware mode.
 - `src/client/`: throwaway debug page (step 3). The real UI comes in step 4.

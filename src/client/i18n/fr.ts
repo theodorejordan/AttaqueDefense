@@ -1,7 +1,7 @@
 // French texts, same keys as `en.ts` (checked by TypeScript).
 // Vocabulary confirmed by the owner: docs/DECISIONS.md > UI > Languages. Face cards: R, D, V.
 import { MAX_PLAYERS, MIN_PLAYERS } from '../../engine/setup.ts';
-import { MAX_NAME_LENGTH } from '../../shared/protocol.ts';
+import { MAX_CHAT_LENGTH, MAX_NAME_LENGTH } from '../../shared/protocol.ts';
 import type { Messages } from './en.ts';
 import { plural } from './plural.ts';
 
@@ -33,6 +33,8 @@ export const fr: Messages = {
     gameNotOver: "La partie n'est pas terminée",
     gameOver: 'La partie est terminée',
     illegalMove: "Ce coup n'est pas autorisé",
+    invalidMessage: `Un message fait entre 1 et ${MAX_CHAT_LENGTH} caractères`,
+    chatTooFast: 'Tu envoies des messages trop vite',
     serverError: 'Erreur du serveur',
   },
   lobby: {
@@ -71,6 +73,7 @@ export const fr: Messages = {
     selected: 'Choisi',
     pickDefence: 'Choisis ta défense : ',
     card: (n) => `Carte ${n}`,
+    flip: 'Retourner la défausse',
     draw: 'Piocher',
     drawn: (card) =>
       `Carte piochée : ${card ? `${card} (vue grâce à l’As)` : 'face cachée'}. Choisis un joueur, puis : `,

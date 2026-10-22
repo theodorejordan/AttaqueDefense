@@ -27,10 +27,21 @@ import {
   spectatorView,
   viewFor,
 } from '../engine/index.ts';
-import { MAX_NAME_LENGTH, type Request, type RoomView, type Update } from '../shared/protocol.ts';
+import {
+  type ChatMessage,
+  MAX_CHAT_LENGTH,
+  MAX_NAME_LENGTH,
+  type Request,
+  type RoomView,
+  type Update,
+} from '../shared/protocol.ts';
 import { RoomError } from './validate.ts';
 
 export const BOT_NAMES = ['Ada', 'Basile', 'Capucine', 'Dorian', 'Elsa', 'Firmin', 'Gaïa', 'Hector', 'Iris', 'Jules'];
+/** Anti-spam: at most CHAT_LIMIT messages per client in CHAT_WINDOW_MS. */
+const CHAT_LIMIT = 5;
+const CHAT_WINDOW_MS = 10_000;
+const CHAT_HISTORY = 100;
 
 interface Seat {
   id: PlayerId;
@@ -44,6 +55,7 @@ interface Seat {
 
 export interface RoomOptions {
   send: (clientId: string, update: Update) => void;
+  sendChat: (clientId: string, message: ChatMessage) => void;
   rng: Rng;
   /** How long the room waits for a disconnected human (RULES 10, and lobby seats). */
   timeoutMs?: number;
@@ -56,6 +68,7 @@ type Timer = ReturnType<typeof setTimeout>;
 
 export class Room {
   #send: RoomOptions['send'];
+  #sendChat: RoomOptions['sendChat'];
   #rng: Rng;
   #timeoutMs: number;
   #botDelayMs: number;
@@ -72,9 +85,17 @@ export class Room {
   #nextId = 1;
   #timeouts = new Map<PlayerId, Timer>();
   #botTimer: Timer | null = null;
+  /** A bot's play, chosen while it looks at its target. */
+  #botPlan: { botId: PlayerId; command: Command } | null = null;
+  #lookingAt: PlayerId | null = null;
+  #chat: ChatMessage[] = [];
+  #nextChatId = 1;
+  /** When each client sent its recent messages, for the anti-spam limit. */
+  #chatTimes = new Map<string, number[]>();
 
   constructor(options: RoomOptions) {
     this.#send = options.send;
+    this.#sendChat = options.sendChat;
     this.#rng = options.rng;
     this.#timeoutMs = options.timeoutMs ?? 60_000;
     this.#botDelayMs = options.botDelayMs ?? 1_500;
@@ -92,6 +113,7 @@ export class Room {
   disconnect(clientId: string) {
     const seatId = this.#clients.get(clientId);
     this.#clients.delete(clientId);
+    this.#chatTimes.delete(clientId);
     if (seatId) this.#seats.find((s) => s.id === seatId)?.clients.delete(clientId);
     this.#changed([]);
   }
@@ -121,6 +143,12 @@ export class Room {
         break;
       case 'backToLobby':
         this.#backToLobby(clientId);
+        break;
+      case 'look':
+        this.#look(clientId, request.target);
+        break;
+      case 'chat':
+        this.#postChat(clientId, request.text);
         break;
     }
     return {};
@@ -201,6 +229,8 @@ export class Room {
     this.#game = createGame(players, this.#resolvedSettings(), this.#rng);
     this.#log = [];
     this.#outOfCards = false;
+    this.#lookingAt = null;
+    this.#botPlan = null;
     this.#changed([], 'all');
   }
 
@@ -211,7 +241,42 @@ export class Room {
     this.#game = null;
     this.#log = [];
     this.#outOfCards = false;
+    this.#lookingAt = null;
+    this.#botPlan = null;
     this.#changed([], 'all');
+  }
+
+  // Chat and "looking at"
+
+  /** Public, and only while the active player chooses an action (RULES 10). Cleared by the next game event. */
+  #look(clientId: string, target: PlayerId | null) {
+    const seat = this.#requireSeat(clientId);
+    const game = this.#game;
+    if (!game) throw new RoomError('noGame');
+    if (this.#isOver()) throw new RoomError('gameOver');
+    if (game.turn?.player !== seat.id || !game.turn.drawn) throw new RoomError('illegalMove', 'Draw a card first, on your turn');
+    if (target !== null && !game.players.some((p) => p.id === target && !p.eliminated)) {
+      throw new RoomError('illegalMove', `Cannot look at ${target}`);
+    }
+    this.#lookingAt = target;
+    this.#changed([]);
+  }
+
+  /** Players and spectators, in the lobby and during a game. */
+  #postChat(clientId: string, rawText: string) {
+    const text = rawText.trim();
+    if (!text || text.length > MAX_CHAT_LENGTH) {
+      throw new RoomError('invalidMessage', `Messages have 1 to ${MAX_CHAT_LENGTH} characters`);
+    }
+    const now = Date.now();
+    const recent = (this.#chatTimes.get(clientId) ?? []).filter((time) => now - time < CHAT_WINDOW_MS);
+    if (recent.length >= CHAT_LIMIT) throw new RoomError('chatTooFast');
+    this.#chatTimes.set(clientId, [...recent, now]);
+
+    const seat = this.#seats.find((s) => s.id === this.#clients.get(clientId));
+    const message: ChatMessage = { id: this.#nextChatId++, from: seat?.id ?? null, name: seat?.name ?? null, text };
+    this.#chat = [...this.#chat.slice(-(CHAT_HISTORY - 1)), message];
+    for (const id of this.#clients.keys()) this.#sendChat(id, message);
   }
 
   // Game
@@ -238,6 +303,7 @@ export class Room {
     }
     this.#game = result.state;
     this.#log.push(...result.events);
+    if (result.events.length > 0) this.#lookingAt = null;
     this.#changed(result.events);
   }
 
@@ -253,6 +319,7 @@ export class Room {
     for (const [clientId, seatId] of this.#clients) {
       const update: Update = { room: this.#roomView(seatId), events };
       if (withLog === 'all' || withLog === clientId) update.log = [...this.#log];
+      if (withLog === clientId) update.chat = [...this.#chat];
       this.#send(clientId, update);
     }
     this.#scheduleBot(events);
@@ -274,6 +341,7 @@ export class Room {
       deckCounts: allowedDeckCounts(this.#seats.length),
       game: game && (isPlaying ? viewFor(game, seatId!) : spectatorView(game)),
       outOfCards: this.#outOfCards,
+      lookingAt: this.#lookingAt,
     };
   }
 
@@ -322,7 +390,17 @@ export class Room {
       // The game may have changed during the delay: pick the move now.
       this.#safely(() => {
         const move = this.#nextBotMove();
-        if (move) this.#apply(() => applyCommand(this.#game!, move.botId, move.command));
+        if (!move) return;
+        // Like a human, a bot first looks at its target, then plays (RULES 10).
+        if (move.command.type === 'play' && this.#botPlan?.botId !== move.botId) {
+          this.#botPlan = move;
+          this.#lookingAt = move.command.play.target;
+          this.#changed([]);
+          return;
+        }
+        const command = this.#botPlan?.botId === move.botId ? this.#botPlan.command : move.command;
+        this.#botPlan = null;
+        this.#apply(() => applyCommand(this.#game!, move.botId, command));
       });
     }, delay);
   }

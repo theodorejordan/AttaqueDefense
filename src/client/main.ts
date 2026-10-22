@@ -153,7 +153,10 @@ function renderGame(room: RoomView) {
       )),
     );
   }
-  if (isMyTurn && !turn.hasDrawn) controls.push(h('p', {}, button(t.game.draw, () => send({ type: 'game', command: { type: 'draw' } }))));
+  if (isMyTurn && !turn.hasDrawn) {
+    const command = game.drawDeckCount === 0 ? ({ type: 'flipSidePot' } as const) : ({ type: 'draw' } as const);
+    controls.push(h('p', {}, button(command.type === 'draw' ? t.game.draw : t.game.flip, () => send({ type: 'game', command }))));
+  }
   if (isMyTurn && turn.hasDrawn) {
     const legal = playsFor(you!, game.players, game.settings.maxMunitions);
     const who = target ? nameOf(target) : '…';

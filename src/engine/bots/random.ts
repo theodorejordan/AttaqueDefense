@@ -13,7 +13,7 @@ export function randomBot(view: PlayerView, rng: Rng): Command | null {
     return me.hasChosenShield ? null : { type: 'chooseShield', cardIndex: randomInt(CARDS_DEALT, rng) };
   }
   if (view.phase !== 'playing' || view.turn?.player !== view.you) return null;
-  if (!view.turn.hasDrawn) return { type: 'draw' };
+  if (!view.turn.hasDrawn) return view.drawDeckCount === 0 ? { type: 'flipSidePot' } : { type: 'draw' };
 
   return { type: 'play', play: pick(playsFor(view.you, view.players, view.settings.maxMunitions), rng) };
 }

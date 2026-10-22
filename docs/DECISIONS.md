@@ -17,6 +17,8 @@ Rule clarifications go in `RULES.md`, not here.
   The full state never reaches a browser.
 - **Stack**: Node.js + [Socket.IO](https://socket.io/docs/v4/) for real-time communication,
   [Vite](https://vite.dev/guide/) + TypeScript for the frontend. No UI framework at first; React may be added if the UI grows.
+  Changed 2026-10-22 (owner): the real UI (step 4) uses [Preact](https://preactjs.com/guide/v10/getting-started)
+  (~4 KB, same model as React, light on mobile data).
 - **Reconnection**: each player gets a token stored in `localStorage`. The server keeps their seat
   for a while after a disconnect (phones lock, tabs get suspended).
 
@@ -67,6 +69,7 @@ Rule clarifications go in `RULES.md`, not here.
   one command, one port, same URL as in production.
 - **Step 3 client**: a throwaway debug page (raw buttons, state as text). The real UI comes in step 4.
 - **Bot pacing**: one bot move at a time, 1.5 s apart, 4 s after an attack so humans can follow the animation.
+  Since 2026-10-22 a bot also "looks at" its target for one step (1.5 s) between drawing and playing.
   Bot names come from a fixed list in `src/server/room.ts` (owner can change it).
 - **Deck count in the lobby**: if the host picked 2 decks and players leave so that 2 is no longer allowed (RULES 2),
   the default is used and shown.
@@ -170,7 +173,7 @@ Two use cases, two commands:
   - **"Looking at" is public** (RULES 10): the picked player gets the selection outline on every screen and the centre text
     says "Theo is looking at Chloé's game". A small client request to the server (checked: your turn, card drawn), broadcast
     to all; room state, not engine state; not in the game log. Bots look at their target briefly before acting.
-  - **In-game chat**, bottom right. Details (spectators, bots, length limits) to discuss when we build it.
+  - **In-game chat**, bottom right. Also open **in the lobby** (owner, 2026-10-22).
   - **Damage preference** moves out of the table into a pause / preferences menu.
   - **Chat mockup**: a bar bottom right (Chat toggle, message field, Send). New messages show as a short speech bubble
     next to the sender's name at the table; the Chat toggle opens the history above the bar. A "Menu" button (top right) holds preferences.
@@ -199,6 +202,18 @@ Two use cases, two commands:
     public event log (biggest hit, most munitions given, defence that stopped the most attacks, most attacked, fastest exit),
     and two buttons: **Play again** (back to the same lobby) and **Quit**. Until the future main page exists,
     Quit frees the seat and shows a simple "You left the table" screen.
+- **Hunter turn** (owner, 2026-10-22): a third outline colour, **brown**, around the hunter, and a clear "Hunter" label
+  for everyone (centre text and next to their name).
+- **Fonts** (owner, 2026-10-22): Inter Tight (interface) and Outfit (card numbers), saved in the repo instead of loaded
+  from Google Fonts: lighter, works offline on LAN games, and no player IP addresses sent to Google.
+- **Step 4a, server side of the new UI** (2026-10-22):
+  - `flipSidePot` command (RULES 7): `draw` refuses an empty deck; the `deckFlipped` event now names the player.
+  - `look` request: only the active player, after drawing, at a player still in the game (or `null`). The room keeps it
+    (`RoomView.lookingAt`), every client sees it, and the next game event clears it. Not in the game log.
+  - `chat` request: 1 to 300 characters, trimmed; at most 5 messages per 10 s per browser tab (`chatTooFast`).
+    Sent to every connected client with the `chat` Socket.IO event; the last 100 messages are sent on (re)connection.
+    Spectators and lobby visitors have no name yet: their messages carry `name: null` and each client shows "Spectator".
+    Accounts will give everyone a name later.
 
 ## Accounts (2026-10-22, owner, to design later)
 
