@@ -115,7 +115,8 @@ Two use cases, two commands:
   1. Click the draw deck to draw. The card appears beside the deck: face-down for everyone, face-up only for the
      active player if their defence is an Ace (RULES 5.4). No text announces the peek.
   2. Click a player's area (cards + name) to select them. Not final: click elsewhere or press Esc to change.
-  3. Three buttons next to the drawn card, in the middle, naming the player ("Attack B", "Change B's defence" or "Give B a defence", "Munition B").
+  3. Three buttons in the middle: "Attack", "Change defence" (or "Give a defence" if the player has none), "Munition".
+     They do not repeat the player's name: the centre text already says "Pick an action for B" (owner, 2026-10-22).
      Actions that are illegal on that player are disabled; players themselves are never greyed out.
      Clicking a button sends the move. No confirmation step: selecting the player is the safety net.
   - The buttons never cover a player's area: other players' cards must stay visible.
@@ -129,7 +130,7 @@ Two use cases, two commands:
   and sends it to a player who reconnects.
 - **Damage preference** (2026-10-19): bottom right for now, placement to be revisited.
 - **Vocabulary** (2026-10-19): players always see **Defence** (never "shield", which is only a code name).
-  English spelling "Defence". Button for a target who already has one: "Change B's defence"; otherwise "Give B a defence".
+  English spelling "Defence". Button for a target who already has one: "Change defence"; otherwise "Give a defence".
 - **Languages** (2026-10-19): English and French.
   - Small dictionary of our own (`en.ts`, `fr.ts`, a `t(key)` function), no library: little text, light download.
     TypeScript checks that both languages have every key. Plurals with [`Intl.PluralRules`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules).
@@ -138,7 +139,7 @@ Two use cases, two commands:
   - French face cards: **R, D, V** (Roi, Dame, Valet) instead of K, Q, J.
   - Done early, at the owner's request (2026-10-19): `src/client/i18n/`, used by the debug page with an EN | FR switch. The real UI (step 4) reuses it.
   - French terms (confirmed by the owner 2026-10-19): Attaque, Défense, Munition, points de vie / cartes de vie,
-    Pioche (draw deck), Défausse (side pot), Chasseur (hunter), "Changer la défense de B" / "Donner une défense à B".
+    Pioche (draw deck), Défausse (side pot), Chasseur (hunter), "Changer la défense" / "Donner une défense".
 
 - **Visual style, mockup round 1** (2026-10-22, owner):
   - **Outline cards** (double-line contour, like the Contours deck), but **classic**: pips laid out as on real cards
@@ -179,6 +180,12 @@ Two use cases, two commands:
   - **Card size by number of players at the table**: about 100 px wide at 3–4, 80 at 5, 66 at 6, 56 at 7–8, 50 at 9–10.
   - **Chat rules** (owner): players **and spectators** can write; **bots never chat**. Messages up to **300 characters**.
     A speech bubble stays **5 s**, in a larger font than the rest of the table text.
+  - **Another player's turn** (mockup): centre text "Chloé's turn · Choosing a player", then
+    "Chloé's turn · Chloé is looking at Malik's game" with the outline on Malik. Their drawn card lifts on their side of the
+    deck and side pot, turned towards them. A small "playing" tag sits next to the active player's name. No action buttons.
+  - **Thin card typography** (owner): light corner numbers, smaller suit symbols, fine lines on court cards.
+  - **Two outlines** (owner): a **grey** outline around the player whose turn it is, a **black** outline around the player
+    being looked at (black wins when they are the same player).
   - Suit symbols **filled** (black or red); the abstract court patterns stay outlined.
   - Player names stay **upright** (readable) while their cards face the centre. Room next to the name may hold the profile picture later.
   - **Ranking** (bottom left): one empty slot per player from 1st to last, filled from the bottom each time a player is eliminated.
