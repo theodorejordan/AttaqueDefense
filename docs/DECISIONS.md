@@ -158,11 +158,12 @@ Two use cases, two commands:
   - **Defence on the centre side of the life cards**, overlapping them, shielding them from the other players (for us: above our cards).
     The defence is the **same card simply turned 90°**: no special design or colour for it.
   - A player's cards are **centred on their seat**. With munitions, life cards + munition stack are centred together
-    (the life cards shift a little to make room).
+    (the life cards shift a little to make room). Munitions always sit right next to the last life card, whatever the number of life cards.
   - **Flat top-down view**: the tilted camera was tried and dropped. No table shape drawn.
-  - **Deck and side pot side by side**. The drawn card lifts up, highlighted, between them and the active player's cards
+  - **Deck and side pot side by side**. The drawn card lifts up, highlighted, partly over them on the active player's side
     (below them on our screen); deck and side pot stay as they are.
   - **Fewer players = bigger cards**: eliminated players leave the table, the others close in and their cards grow.
+    The deck, side pot and drawn card keep their full size whatever the number of players: only the players' cards scale.
   - Usual games: 4 to 8 players (10 is rare). Design for 4–6 first.
 - **Visual style, mockup round 3** (2026-10-22, owner):
   - **"Looking at" is public** (RULES 10): the picked player gets the selection outline on every screen and the centre text
@@ -170,6 +171,14 @@ Two use cases, two commands:
     to all; room state, not engine state; not in the game log. Bots look at their target briefly before acting.
   - **In-game chat**, bottom right. Details (spectators, bots, length limits) to discuss when we build it.
   - **Damage preference** moves out of the table into a pause / preferences menu.
+  - **Chat mockup**: a bar bottom right (Chat toggle, message field, Send). New messages show as a short speech bubble
+    next to the sender's name at the table; the Chat toggle opens the history above the bar. A "Menu" button (top right) holds preferences.
+  - **Seats about the same distance from the centre**: players on the far left and right come closer instead of sitting at the
+    screen edge. A perfect circle does not fit (the screen is wider than tall and the centre needs room for the deck, side pot
+    and action buttons), so the table is a slightly wide oval.
+  - **Card size by number of players at the table**: about 100 px wide at 3–4, 80 at 5, 66 at 6, 56 at 7–8, 50 at 9–10.
+  - **Chat rules** (owner): players **and spectators** can write; **bots never chat**. Messages up to **300 characters**.
+    A speech bubble stays **5 s**, in a larger font than the rest of the table text.
   - Suit symbols **filled** (black or red); the abstract court patterns stay outlined.
   - Player names stay **upright** (readable) while their cards face the centre. Room next to the name may hold the profile picture later.
   - **Ranking** (bottom left): one empty slot per player from 1st to last, filled from the bottom each time a player is eliminated.
