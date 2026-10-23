@@ -126,10 +126,29 @@ Two use cases, two commands:
 - **Animations** (2026-10-19): sober, plain CSS ([3D transforms](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_transforms/Using_CSS_transforms)), no library.
   - Attack: the attack cards flip in the air and land on the target (mostly on the defence), then stay 3–4 s while life points update.
   - Defence: the card flips face-up onto the target's defence spot. Munition: it slides face-down onto the target's munition stack.
+  - **Changing a defence** (owner, 2026-10-23, step 4f): the old defence also needs its animation: the new card lands on the
+    defence spot and the old one goes to the side pot.
+  - **No card ever teleports** (owner, 2026-10-23, step 4f): every card that changes place flies there. Cards that move:
+    the drawn card (deck → beside the piles), the attack (drawn card **and the attacker's munitions** fly together to the target),
+    a munition (flies face-down to the target's stack), a defence (flies onto the defence spot, the old one to the side pot),
+    life-card replacements (removed cards to the side pot, the replacement from the side pot or the deck), lost munitions and a
+    destroyed defence (to the side pot), an eliminated player's cards (to the side pot), the side pot flip (to the deck spot),
+    and the deal at setup.
   - **The wait is client-side**: the server applies moves at once and sends events; each device plays them in order
     and keeps its deck disabled until its own animations end.
   - **Elimination** (owner, 2026-10-23, step 4f): a short death animation on the eliminated player, then the other players'
     cards move to their new places around the table.
+  - **Attack timing** (owner, 2026-10-23), as at a real table:
+    1. The attack cards land **on top of** the target's defence, tilted and shifted to one side: the defence stays readable.
+       Nothing else changes yet: same life cards, same defence.
+    2. **2 s later** the target's cards change (life cards replaced, defence and munitions gone if lost). The attack cards
+       stay on the target, not in the side pot yet; one taken as a new life card (RULES 6.1) joins the life cards.
+       In 4f, the **replacement animation** starts here (life cards swapping with the side pot); it may take a bit longer.
+    3. 2 s later the attack cards leave; a player knocked out leaves the table (4f: the death animation).
+  - **Playback** (2026-10-23): each screen turns every server update into frames (`src/client/table/playback.ts`) and shows them
+    in order; updates arriving meanwhile wait. During an attack the table shows the state from before it, so it can be a few
+    seconds behind the server. Your deck stays disabled until the playback ends. The timings live in `src/shared/timing.ts`,
+    also used by the server's pause before a bot plays after an attack, so screens never fall further behind.
 - **Main info text** (2026-10-19): in the middle, above the deck: whose turn it is, hunter turns, who hit whom.
 - **Game log** (2026-10-19): every player can open it on their device at any time. The server keeps the event history
   and sends it to a player who reconnects.
@@ -243,10 +262,8 @@ Two use cases, two commands:
 - **After the first 4d test** (2026-10-23, owner):
   - **Last action**: a grey line above the centre text gives the latest move, with the cards
     ("Basile attacked Ada: 7♥ + 3♠ = 10, defence 8♦ destroyed, 2 damage"), plus whoever it eliminated.
-  - **Attack cards stay visible 4 s**: face-up over the target's defence (the server already waits 4 s before a bot plays after
-    an attack). A static first version of the 4f attack animation: 4f adds the flip and the flight. Your deck stays disabled
-    meanwhile, and a player knocked out by the attack stays seated until it ends. Animations react to new events
-    (`onEvents` in `connection.ts`), never to the log sent on (re)connection.
+  - **Attack cards stay visible**: face-up on the target's defence, played back as described in Animations > Attack timing.
+    A static first version of the 4f attack animation: 4f adds the flip and the flight.
   - **Game log** pulled forward from 4e: a "Game log" button in the top bar opens a panel, newest first, one sentence per
     event (`src/client/log/describe.ts`, shared with the last-action line). Only actions are listed (owner): no "Ada's turn",
     no draws, no blind defence choices. Hunter turns stay, since they are rare and change who plays.

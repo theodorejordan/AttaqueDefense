@@ -36,6 +36,11 @@ describe('promptFor', () => {
     });
   });
 
+  it('asks nothing while an attack is played back', () => {
+    const game = spectatorView(makeState(players(), { drawDeck: cards('7') }));
+    expect(promptFor(game, 'A', null, false, true)).toMatchObject({ yours: true, step: 'wait' });
+  });
+
   it('marks a hunter turn', () => {
     const state = makeState(players(), { drawDeck: cards('7') });
     state.turn!.isHunter = true;

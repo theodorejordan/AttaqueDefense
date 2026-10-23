@@ -35,6 +35,7 @@ import {
   type RoomView,
   type Update,
 } from '../shared/protocol.ts';
+import { ATTACK_PLAYBACK_MS } from '../shared/timing.ts';
 import { RoomError } from './validate.ts';
 
 export const BOT_NAMES = ['Ada', 'Basile', 'Capucine', 'Dorian', 'Elsa', 'Firmin', 'Gaïa', 'Hector', 'Iris', 'Jules'];
@@ -99,7 +100,8 @@ export class Room {
     this.#rng = options.rng;
     this.#timeoutMs = options.timeoutMs ?? 60_000;
     this.#botDelayMs = options.botDelayMs ?? 1_500;
-    this.#botAttackDelayMs = options.botAttackDelayMs ?? 4_000;
+    // As long as the screens take to play an attack back (src/shared/timing.ts).
+    this.#botAttackDelayMs = options.botAttackDelayMs ?? ATTACK_PLAYBACK_MS;
   }
 
   /** A new browser tab. A known token gets its seat back. */

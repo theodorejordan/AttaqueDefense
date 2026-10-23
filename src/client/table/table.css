@@ -83,14 +83,15 @@
   top: 0;
 }
 
-/* The cards of an attack, face-up over the target's defence for a few seconds (Table.tsx). */
+/* The cards of an attack, thrown onto the target's defence: tilted and shifted to one side, so the defence's
+   other half and its value stay visible underneath (owner, 2026-10-23). */
 .attack-cards {
   position: absolute;
   left: 50%;
-  top: 0;
+  top: calc(var(--w) * 0.5);
   z-index: 2;
   display: flex;
-  transform: translate(-50%, -25%);
+  transform: translate(calc(-50% + var(--w) * 0.45), -50%) rotate(12deg);
   filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.3));
   animation: attack-in 220ms ease-out;
 }
@@ -102,7 +103,7 @@
 @keyframes attack-in {
   from {
     opacity: 0;
-    transform: translate(-50%, -45%) scale(1.1);
+    transform: translate(calc(-50% + var(--w) * 0.45), -80%) rotate(4deg) scale(1.1);
   }
 }
 

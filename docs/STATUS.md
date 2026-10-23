@@ -26,8 +26,9 @@ Last updated: 2026-10-23. Update this file whenever a step starts or ends, or a 
    Step 4 sub-steps (plan approved 2026-10-22): 4a server side (flip, "looking at", chat) **done**; 4b basics (Preact,
    colours, self-hosted fonts, Card piece, texts) **done**; 4c lobby **done**
    **4d table done** (2026-10-23; games are now played on `/`), plus the owner's first feedback: last-action line, attack cards
-   shown 4 s, game log panel, bigger table on big screens, chosen defences shown at once.
-   Next: 4e chat and Menu (damage preference, still only on `/debug.html`), 4f animations (incl. elimination), 4g end of game.
+   shown on the target, game log panel (actions only), bigger table on big screens, chosen defences shown at once, and the
+   attack playback (lands on the defence, 2 s pause, then the life cards change).
+   Next: 4e chat and Menu (damage preference, still only on `/debug.html`), 4f animations (no card ever teleports), 4g end of game.
 
 ## Pending discussions (owner input needed)
 - **Lobby settings**: settled (2026-10-19), nothing more than hunters, number of decks and max munitions.

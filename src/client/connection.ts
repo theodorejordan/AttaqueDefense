@@ -10,6 +10,7 @@ import type {
   Request,
   RoomView,
   ServerToClientEvents,
+  Update,
 } from '../shared/protocol.ts';
 
 export interface ConnectionState {
@@ -29,7 +30,7 @@ const CHAT_KEPT = 100;
 
 let state: ConnectionState = { connected: false, room: null, log: [], chat: [], error: null };
 const listeners = new Set<() => void>();
-const eventListeners = new Set<(events: GameEvent[]) => void>();
+const updateListeners = new Set<(update: Update) => void>();
 
 function update(patch: Partial<ConnectionState>) {
   state = { ...state, ...patch };
@@ -49,7 +50,7 @@ socket.on('update', (message) => {
     log: message.log ?? [...state.log, ...message.events],
     chat: message.chat ?? state.chat,
   });
-  if (message.events.length > 0) eventListeners.forEach((listener) => listener(message.events));
+  updateListeners.forEach((listener) => listener(message));
 });
 socket.on('chat', (message) => update({ chat: [...state.chat, message].slice(-CHAT_KEPT) }));
 
@@ -87,12 +88,12 @@ export function useConnection(): ConnectionState {
 }
 
 /**
- * Calls `listener` with each batch of new game events, as they happen: what animations react to.
- * The log sent on (re)connection is not replayed. Returns the function that stops listening.
+ * Calls `listener` with each update from the server, in order: the table plays them back (table/playback.ts).
+ * `events` only holds new events: the log sent on (re)connection is never replayed. Returns the function that stops listening.
  */
-export function onEvents(listener: (events: GameEvent[]) => void): () => void {
-  eventListeners.add(listener);
+export function onUpdate(listener: (update: Update) => void): () => void {
+  updateListeners.add(listener);
   return () => {
-    eventListeners.delete(listener);
+    updateListeners.delete(listener);
   };
 }

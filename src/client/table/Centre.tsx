@@ -143,6 +143,7 @@ function promptText(prompt: Prompt, nameOf: (id: PlayerId) => string, you: Playe
         const main = hunter ? t.table.yourHunterTurn : t.table.yourTurn;
         if (step === 'flip') return { main, sub: t.table.flip };
         if (step === 'draw') return { main, sub: t.table.draw };
+        if (step === 'wait') return { main, sub: null };
         if (lookingAt === null) return { main, sub: t.table.pickPlayer };
         return { main, sub: t.table.pickAction(lookingAt === you ? t.table.yourself : nameOf(lookingAt)) };
       }

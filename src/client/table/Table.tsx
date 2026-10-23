@@ -1,13 +1,15 @@
 // The game screen (roadmap step 4d): the players around an oval, the deck and side pot in the middle.
 // Geometry: layout.ts. Centre text: prompt.ts. "Looking at" lives on the server, so every screen shows the same outline.
+// The table draws the played-back room (playback.ts), which can be a few seconds behind the server's latest one.
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { playsFor } from '../../engine/actions.ts';
 import type { ActionType, Command, GameEvent, PlayerId } from '../../engine/state.ts';
 import type { RoomView } from '../../shared/protocol.ts';
-import { onEvents, send } from '../connection.ts';
+import { send } from '../connection.ts';
 import { describeLastAction, lastAction } from '../log/describe.ts';
 import { Centre } from './Centre.tsx';
 import { drawnCardOffset, seatingOrder, tableLayout } from './layout.ts';
+import { usePlayback } from './usePlayback.ts';
 import { promptFor } from './prompt.ts';
 import { Seat } from './Seat.tsx';
 import './table.css';
@@ -15,15 +17,13 @@ import './table.css';
 const play = (command: Command) => send({ type: 'game', command });
 const look = (target: PlayerId | null) => send({ type: 'look', target });
 
-/** How long the attack cards stay on their target (docs/DECISIONS.md > UI > Animations). The server waits as long before a bot plays. */
-const ATTACK_SHOWN_MS = 4_000;
-type Attack = Extract<GameEvent, { type: 'attacked' }>;
-
-export function Table({ room, log }: { room: RoomView; log: GameEvent[] }) {
+export function Table({ room: latest, log }: { room: RoomView; log: GameEvent[] }) {
+  const { frame, busy } = usePlayback(latest);
+  const room = frame.room.game ? frame.room : latest;
+  const { attack } = frame;
   const game = room.game!;
   const box = useRef<HTMLElement>(null);
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-  const [attack, setAttack] = useState<Attack | null>(null);
 
   // https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver
   useEffect(() => {
@@ -34,23 +34,8 @@ export function Table({ room, log }: { room: RoomView; log: GameEvent[] }) {
     return () => observer.disconnect();
   }, []);
 
-  // An attack is shown on its target for a few seconds; a new one replaces it.
-  useEffect(
-    () =>
-      onEvents((events) => {
-        const latest = events.filter((e): e is Attack => e.type === 'attacked').at(-1);
-        if (latest) setAttack(latest);
-      }),
-    [],
-  );
-  useEffect(() => {
-    if (!attack) return;
-    const timer = setTimeout(() => setAttack(null), ATTACK_SHOWN_MS);
-    return () => clearTimeout(timer);
-  }, [attack]);
-
   const { you, lookingAt } = room;
-  const prompt = promptFor(game, you, lookingAt, room.outOfCards);
+  const prompt = promptFor(game, you, lookingAt, room.outOfCards, busy);
   const picking = prompt.type === 'turn' && prompt.yours && prompt.step === 'pick';
 
   // Esc stops looking at a player, like a click on an empty part of the table (docs/DECISIONS.md > UI > Turn flow).
@@ -87,8 +72,8 @@ export function Table({ room, log }: { room: RoomView; log: GameEvent[] }) {
       }
     : null;
   const onAction = (type: ActionType) => looked && play({ type: 'play', play: { type, target: looked.id } });
-  // The wait is client-side: your deck stays disabled while an attack is shown (docs/DECISIONS.md > UI > Animations).
-  const canDraw = prompt.type === 'turn' && prompt.yours && attack === null;
+  // The wait is client-side: your deck stays disabled while the table plays back (docs/DECISIONS.md > UI > Animations).
+  const canDraw = prompt.type === 'turn' && prompt.yours;
   const last = lastAction(log);
 
   return (
