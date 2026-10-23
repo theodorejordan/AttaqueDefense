@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { draw, eliminateAfterTimeout, flipSidePot, legalPlays, play } from './actions.ts';
+import { draw, eliminateAfterTimeout, flipSidePot, leaveGame, legalPlays, play } from './actions.ts';
 import { type ActionType, type GameState, OutOfCardsError, type PlayerId } from './state.ts';
 import { card, cards, makePlayer, makeState, testSettings, values } from './test-helpers.ts';
 
@@ -289,5 +289,22 @@ describe('timeout elimination (RULES 10)', () => {
     const { state: next } = eliminateAfterTimeout(makeState(players), 'A');
     expect(next.phase).toBe('finished');
     expect(next.winner).toBe('B');
+  });
+});
+
+describe('leaving the game (RULES 10)', () => {
+  it('works like a timeout: eliminated, drawn card discarded, no hunter turn', () => {
+    const drawn = draw(makeState(fourPlayers(), { drawDeck: cards('9') }), 'A').state;
+    const { state: next, events } = leaveGame(drawn, 'A');
+    expect(player(next, 'A').eliminated).toBe(true);
+    expect(values(next.sidePot)).toEqual([5, 5, 5, 9]);
+    expect(next.eliminationCount).toBe(0);
+    expect(events.map((e) => e.type)).toEqual(['left', 'eliminated', 'turnStarted']);
+  });
+
+  it('lets a player leave when it is not their turn', () => {
+    const { state: next } = leaveGame(makeState(fourPlayers()), 'C');
+    expect(player(next, 'C').eliminated).toBe(true);
+    expect(next.turn).toMatchObject({ player: 'A' });
   });
 });

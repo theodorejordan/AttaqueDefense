@@ -4,21 +4,26 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { playsFor } from '../../engine/actions.ts';
 import type { ActionType, Command, GameEvent, PlayerId } from '../../engine/state.ts';
-import type { RoomView } from '../../shared/protocol.ts';
+import type { ChatMessage, RoomView } from '../../shared/protocol.ts';
+import { ChatPanel } from '../chat/ChatPanel.tsx';
 import { send } from '../connection.ts';
+import { t } from '../i18n/index.ts';
 import { describeLastAction, lastAction } from '../log/describe.ts';
 import { Centre } from './Centre.tsx';
 import { drawnCardOffset, seatingOrder, tableLayout } from './layout.ts';
 import { usePlayback } from './usePlayback.ts';
 import { promptFor } from './prompt.ts';
+import { ranking } from './ranking.ts';
 import { Seat } from './Seat.tsx';
+import { useBubbles } from './useBubbles.ts';
 import './table.css';
 
 const play = (command: Command) => send({ type: 'game', command });
 const look = (target: PlayerId | null) => send({ type: 'look', target });
 
-export function Table({ room: latest, log }: { room: RoomView; log: GameEvent[] }) {
+export function Table({ room: latest, log, chat }: { room: RoomView; log: GameEvent[]; chat: ChatMessage[] }) {
   const { frame, busy } = usePlayback(latest);
+  const bubbles = useBubbles(chat);
   const room = frame.room.game ? frame.room : latest;
   const { attack } = frame;
   const game = room.game!;
@@ -75,6 +80,8 @@ export function Table({ room: latest, log }: { room: RoomView; log: GameEvent[] 
   // The wait is client-side: your deck stays disabled while the table plays back (docs/DECISIONS.md > UI > Animations).
   const canDraw = prompt.type === 'turn' && prompt.yours;
   const last = lastAction(log);
+  const out = new Set(game.players.filter((p) => p.eliminated).map((p) => p.id));
+  const places = ranking(game.players.length, log, out, game.phase === 'finished' ? game.winner : null);
 
   return (
     <main
@@ -100,6 +107,8 @@ export function Table({ room: latest, log }: { room: RoomView; log: GameEvent[] 
             turn={isTurn ? (turn.isHunter ? 'hunter' : 'turn') : null}
             looked={place.id === lookingAt}
             attack={attack?.target === place.id ? attack.cards : null}
+            bubble={bubbles.get(place.id)?.text ?? null}
+            bubbleSide={place.x > layout.centre.x + 1 ? 'left' : 'right'}
             choosing={choosing}
             onPick={picking && !player.eliminated ? () => look(place.id === lookingAt ? null : place.id) : undefined}
             onChooseDefence={
@@ -126,6 +135,21 @@ export function Table({ room: latest, log }: { room: RoomView; log: GameEvent[] 
           onAction={onAction}
           onBackToLobby={prompt.type === 'over' && you !== null && you === room.hostId ? () => send({ type: 'backToLobby' }) : undefined}
         />
+      </div>
+      <section class="ranking" aria-labelledby="ranking-title">
+        <h2 id="ranking-title">{t.ranking.title}</h2>
+        <ol style={{ '--rows': Math.ceil(places.length / 2) }}>
+          {places.map((id, i) => (
+            <li key={i}>
+              <span class="place">{t.ranking.place(i + 1)}</span>
+              <span class={id ? 'ranked' : 'ranked empty'}>{id ? nameOf(id) : '—'}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+      {/* Always open at the table (owner, 2026-10-23). */}
+      <div class="table-chat">
+        <ChatPanel messages={chat} />
       </div>
     </main>
   );

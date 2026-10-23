@@ -9,7 +9,7 @@ Last updated: 2026-10-23. Update this file whenever a step starts or ends, or a 
 | 1 | Scaffold (TypeScript, Vite, Vitest) | Done |
 | 2 | Game engine + tests + random bot + simulations | Done |
 | 3 | Server: lobby, "Add bot", filtered views, spectators, reconnection, disconnection timeout, multi-tab dev mode, debug page | Done (2026-10-19) |
-| 4 | Visual style discussion with mockups → desktop UI | In progress (4a–4d done, 4e next) |
+| 4 | Visual style discussion with mockups → desktop UI | In progress (4a–4e done, 4f next) |
 | 5 | Launch commands: `npm start` (LAN + QR code), online hosting on Fly.io (decided 2026-10-22; tunnel's fate open) | To do. `v0.1.0` = first playable version |
 | 6 | Mobile pass | To do |
 | 7 | Smarter bots (difficulty levels) | To do |
@@ -20,15 +20,15 @@ Last updated: 2026-10-23. Update this file whenever a step starts or ends, or a 
 2. Language switch (EN/FR): done 2026-10-19 (`src/client/i18n/`). Owner trusts the French texts as they are; adjust later if needed.
 3. Bots: settled for now (2026-10-22), see `DECISIONS.md` > Bots. They come **after** `v0.1.0`.
 4. **Step 4 in progress** (started 2026-10-22): table mockups done over 3 rounds (decisions in `DECISIONS.md` > UI).
-   Lobby and end-of-game screens mocked too. Next: step 4 implementation plan, then build the desktop UI.
+   Lobby and end-of-game screens mocked too.
    Later options: card counts, life totals, goofy card backs (chosen in the lobby), profile pictures.
-   To design when building: in-game chat (bottom right), pause / preferences menu (damage preference moves there).
    Step 4 sub-steps (plan approved 2026-10-22): 4a server side (flip, "looking at", chat) **done**; 4b basics (Preact,
    colours, self-hosted fonts, Card piece, texts) **done**; 4c lobby **done**
    **4d table done** (2026-10-23; games are now played on `/`), plus the owner's first feedback: last-action line, attack cards
    shown on the target, game log panel (actions only), bigger table on big screens, chosen defences shown at once, and the
    attack playback (lands on the defence, 2 s pause, then the life cards change).
-   Next: 4e chat and Menu (damage preference, still only on `/debug.html`), 4f animations (no card ever teleports), 4g end of game.
+   **4e done** (2026-10-23): chat always open with speech bubbles, Menu (damage preference, How to play, Leave the game),
+   ranking. Debug page deleted. Next: 4f animations (no card ever teleports), 4g end of game.
 
 ## Pending discussions (owner input needed)
 - **Lobby settings**: settled (2026-10-19), nothing more than hunters, number of decks and max munitions.

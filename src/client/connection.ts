@@ -60,7 +60,7 @@ export function send(request: Request): Promise<boolean> {
     socket.emit('request', request, (reply) => {
       if (reply.ok) {
         if (reply.token) storage.setItem(TOKEN_KEY, reply.token);
-        if (request.type === 'leave') storage.removeItem(TOKEN_KEY);
+        if (request.type === 'leave' || request.type === 'leaveGame') storage.removeItem(TOKEN_KEY);
         update({ error: null });
       } else {
         update({ error: { code: reply.error, detail: reply.detail } });

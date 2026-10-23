@@ -46,6 +46,7 @@ export function parseRequest(value: unknown): Request {
     case 'join':
       return { type: 'join', name: string(value.name, 'name') };
     case 'leave':
+    case 'leaveGame':
     case 'addBot':
     case 'start':
     case 'backToLobby':

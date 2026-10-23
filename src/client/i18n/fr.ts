@@ -14,8 +14,6 @@ const rankNames: Record<Rank, string> = {
 const suitNames: Record<Suit, string> = { hearts: 'cœur', diamonds: 'carreau', clubs: 'trèfle', spades: 'pique' };
 
 export const fr: Messages = {
-  title: 'AttaqueDéfense (debug)',
-  nobody: 'personne',
   ranks: {
     A: 'A', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7',
     '8': '8', '9': '9', '10': '10', J: 'V', Q: 'D', K: 'R',
@@ -64,7 +62,6 @@ export const fr: Messages = {
     maxMunitions: 'Munitions max par joueur',
     addBot: 'Ajouter un bot',
     start: 'Lancer la partie',
-    summary: (s) => `Chasseurs ${s.hunters}, paquets ${s.deckCount}, munitions max ${s.maxMunitions}`,
     players: 'Joueurs',
     seats: (count) => `${count} / ${MAX_PLAYERS} places`,
     spectators: (count) =>
@@ -93,6 +90,7 @@ export const fr: Messages = {
     connecting: 'Connexion…',
     language: 'Langue',
     gameLog: 'Historique',
+    menu: 'Menu',
   },
   table: {
     pickDefence: 'Choisis ta défense',
@@ -125,40 +123,53 @@ export const fr: Messages = {
     drawnCard: 'Carte piochée',
     dealtCard: (n) => `Carte face cachée ${n}`,
   },
-  game: {
-    title: 'Partie',
-    spectating: 'Partie (spectateur)',
-    outOfCards: 'Plus de cartes : la partie est terminée.',
-    over: (winner) => `Partie terminée. Gagnant : ${winner}`,
-    choosing: 'Chacun choisit sa défense, à l’aveugle.',
-    turn: (who, isHunter, hasDrawn) =>
-      `Au tour de ${who}${isHunter ? ' (chasseur)' : ''}${hasDrawn ? ', carte piochée' : ''}`,
-    player: 'Joueur',
-    life: 'Vie',
-    defence: 'Défense',
-    munitions: 'Munitions',
-    you: '(toi)',
-    ready: 'prêt',
-    choosingShort: 'choisit…',
-    select: 'Choisir',
-    selected: 'Choisi',
-    pickDefence: 'Choisis ta défense : ',
-    card: (n) => `Carte ${n}`,
-    flip: 'Retourner la défausse',
-    draw: 'Piocher',
-    drawn: (card) =>
-      `Carte piochée : ${card ? `${card} (vue grâce à l’As)` : 'face cachée'}. Choisis un joueur, puis : `,
-    attack: (who) => `Attaquer ${who}`,
-    changeDefence: (who) => `Changer la défense de ${who}`,
-    giveDefence: (who) => `Donner une défense à ${who}`,
-    munition: (who) => `Munition à ${who}`,
-    preference: 'Préférence de dégâts : ',
-    backToLobby: 'Retour au salon',
-    piles: (drawDeck, sidePot) =>
-      `Pioche : ${plural('fr', drawDeck, { one: 'carte', other: 'cartes' })}. Défausse (dessus en premier) : ${sidePot}`,
+  menu: {
+    preference: 'Préférence de dégâts',
+    preferenceIntro: 'Quand tu prends des dégâts, le jeu choisit les cartes de vie à changer. Toi seul vois ce choix.',
+    preferenceHelp: {
+      normal: 'Aucune préférence : la carte de remplacement trouvée en premier.',
+      fewestCards: 'Garder le moins de cartes de vie possible.',
+      lowestMax: 'Garder ta plus haute carte de vie la plus basse possible.',
+    },
+    howToPlay: 'Comment jouer',
+    back: 'Retour',
+    leave: 'Quitter la partie',
+    leaveConfirm: 'Quitter la partie ? Tu es éliminé tout de suite, sans tour de chasseur. Tu peux continuer à regarder.',
+    leaveYes: 'Quitter',
+    cancel: 'Annuler',
+    rules: [
+      { title: 'But', text: 'Être le dernier joueur en jeu. Tes points de vie sont la somme de tes cartes de vie (As = 1, V = 11, D = 12, R = 13).' },
+      {
+        title: 'Mise en place',
+        text: 'Tu reçois 4 cartes face cachée et tu en choisis une comme défense, sans les voir. Les 3 autres sont tes cartes de vie. Le plus petit total de vie commence.',
+      },
+      {
+        title: 'Ton tour',
+        text: 'Pioche une carte, choisis un joueur, puis une action : Attaquer un autre joueur ; lui donner la carte comme Défense (l’ancienne va à la défausse) ; ou la lui donner face cachée comme Munition (toi compris, jusqu’au maximum). Personne ne voit les munitions.',
+      },
+      {
+        title: 'Attaques',
+        text: 'Une attaque, c’est la carte piochée plus toutes tes munitions. En dessous de la défense : rien ne se passe. Égale : la défense est détruite. Au-dessus : la défense est détruite et la différence fait des dégâts. Sans défense : toute l’attaque fait des dégâts.',
+      },
+      {
+        title: 'Dégâts',
+        text: 'Tu retires des cartes de vie valant au moins les dégâts et tu récupères une carte pour la différence. Perdre ta défense ou des points de vie te fait aussi perdre toutes tes munitions.',
+      },
+      { title: 'Défense As', text: 'Si ta défense est un As, tu vois la carte que tu pioches avant de la jouer.' },
+      {
+        title: 'Chasseurs',
+        text: 'Selon les réglages, les premiers éliminés jouent tout de suite un dernier tour. Ils ne peuvent pas se donner de défense ni de munition.',
+      },
+      { title: 'Pioche vide', text: 'Quand la pioche est vide, retourne la défausse : elle devient la nouvelle pioche.' },
+    ],
+  },
+  ranking: {
+    title: 'Classement',
+    place: (n) => (n === 1 ? '1er' : `${n}e`),
   },
   log: {
     title: 'Historique',
+    left: (who) => `${who} a quitté la partie`,
     empty: 'Rien ne s’est encore passé.',
     defenceChosen: (who) => `${who} a choisi sa défense`,
     gameStarted: (first) => `Défenses révélées. ${first} commence`,

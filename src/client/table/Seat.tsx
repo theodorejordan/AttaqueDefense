@@ -22,6 +22,9 @@ interface SeatProps {
   looked: boolean;
   /** The cards of an attack on this player, shown face-up over their defence for a few seconds. */
   attack: CardData[] | null;
+  /** Their latest chat message, for a few seconds, on the side of the name facing the centre. */
+  bubble: string | null;
+  bubbleSide: 'left' | 'right';
   /** The setup phase: a player who has not chosen yet shows 4 face-down cards (RULES 3). */
   choosing: boolean;
   /** Set when you can look at this player (your turn, card drawn). */
@@ -30,7 +33,8 @@ interface SeatProps {
   onChooseDefence?: (cardIndex: number) => void;
 }
 
-export function Seat({ player, member, place, cardWidth, isYou, turn, looked, attack, choosing, onPick, onChooseDefence }: SeatProps) {
+export function Seat(props: SeatProps) {
+  const { player, member, place, cardWidth, isYou, turn, looked, attack, bubble, bubbleSide, choosing, onPick, onChooseDefence } = props;
   const cards = <SeatCards player={player} width={cardWidth} choosing={choosing} onChooseDefence={onChooseDefence} />;
   const away = point(outward(place.rotation));
   const tags = [
@@ -43,7 +47,7 @@ export function Seat({ player, member, place, cardWidth, isYou, turn, looked, at
 
   return (
     <div
-      class="seat"
+      class={bubble ? 'seat has-bubble' : 'seat'}
       style={{
         '--w': `${cardWidth}px`,
         left: `${place.x}px`,
@@ -87,6 +91,7 @@ export function Seat({ player, member, place, cardWidth, isYou, turn, looked, at
               {tag}
             </span>
           ))}
+          {bubble && <span class={`bubble ${bubbleSide}`}>{bubble}</span>}
         </div>
       </div>
     </div>

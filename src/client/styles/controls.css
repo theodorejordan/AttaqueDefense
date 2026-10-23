@@ -28,6 +28,23 @@
   border-color: var(--ink);
 }
 
+/* A panel opened from the top bar (game log, menu): under it on the right, over the table. One at a time. */
+.side-panel {
+  position: fixed;
+  top: 64px;
+  right: 24px;
+  z-index: 2;
+  box-sizing: border-box;
+  width: min(380px, calc(100vw - 32px));
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--felt);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+}
+
 .btn-primary {
   height: 52px;
   padding: 0 32px;

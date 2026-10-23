@@ -40,7 +40,7 @@ and imports use the `.ts` extension.
   - `bots/random.ts`: random bot (uses a `PlayerView`, never the full state).
   - `rng.ts`: seeded RNG; randomness is always injected, never `Math.random()` inside the engine.
   - `*.test.ts`: unit tests built from RULES examples; `simulation.test.ts` plays random games and checks invariants.
-  - `actions.ts` also has `eliminateAfterTimeout` (RULES 10), called by the server only. `view.ts` also has `spectatorView`.
+  - `actions.ts` also has `eliminateAfterTimeout` and `leaveGame` (RULES 10), called by the server only. `view.ts` also has `spectatorView`.
 - `src/shared/protocol.ts`: messages between browser and server (`Request` in, `Update` and `chat` out, `Reply` acknowledgement).
 - `src/server/`:
   - `room.ts`: the single room (lobby, host, bots, game, event log, disconnection timers, "looking at", chat). No network code, tested with fake timers.
@@ -49,12 +49,13 @@ and imports use the `.ts` extension.
 - `src/client/`: the real UI (Preact + TSX, step 4). `main.tsx` → `App.tsx` picks the screen from the room state.
   - `connection.ts`: Socket.IO link, seat token, latest room/log/chat; components use `useConnection()` and `send()`,
     the table's playback listens to every update with `onUpdate()`.
-  - `lobby/`, `chat/`: the lobby screen and the chat panel. `styles/controls.css`: shared buttons, choices, tags, fields.
+  - `lobby/`, `chat/`: the lobby screen and the chat panel (also at the table). `menu/`: the Menu panel (preference, rules, leave).
+    `styles/controls.css`: shared buttons, choices, tags, fields, side panels.
   - `table/`: the game screen. `layout.ts` (seats on the oval, card sizes), `prompt.ts` (centre text as data),
     `playback.ts` + `usePlayback.ts` (updates shown in order, attacks played out over time, timings in `src/shared/timing.ts`),
-    `Table.tsx`, `Seat.tsx` (one player), `Centre.tsx` (deck, side pot, drawn card, text, action buttons).
+    `Table.tsx`, `Seat.tsx` (one player), `Centre.tsx` (deck, side pot, drawn card, text, action buttons),
+    `ranking.ts` (bottom-left ranking), `useBubbles.ts` (chat speech bubbles).
   - `log/`: `describe.ts` (one sentence per event, the last action) and the `GameLog` panel.
-  - `debug.html` + `debug.ts`: the step 3 debug page, kept until the end of step 4 (damage preference until 4e).
   - `cards/`: the `Card` piece (`Card.tsx`, `card.css`) and what is drawn on faces (`faces.ts`: suit paths, pips, court patterns).
   - `styles/base.css`: colours (CSS variables) and the self-hosted fonts. `gallery.html`: dev page showing every card.
   - `i18n/`: English and French texts (`en.ts`, `fr.ts`, same keys, checked by TypeScript), `t`, language detection and switch.

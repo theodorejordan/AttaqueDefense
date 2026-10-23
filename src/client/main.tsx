@@ -1,4 +1,4 @@
-// Entry point of the real UI. The debug page of step 3 still lives at /debug.html until the end of step 4.
+// Entry point of the UI.
 import { render } from 'preact';
 import { App } from './App.tsx';
 import './styles/base.css';

@@ -10,7 +10,7 @@ const HIDDEN: ReadonlySet<GameEvent['type']> = new Set(['turnStarted', 'drew', '
 export function GameLog({ log, nameOf }: { log: GameEvent[]; nameOf: (id: PlayerId) => string }) {
   const shown = log.filter((e) => !HIDDEN.has(e.type)).reverse();
   return (
-    <section class="game-log" aria-labelledby="game-log-title">
+    <section class="side-panel game-log" aria-labelledby="game-log-title">
       <h2 id="game-log-title" class="visually-hidden">
         {t.log.title}
       </h2>

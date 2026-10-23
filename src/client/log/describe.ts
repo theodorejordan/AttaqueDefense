@@ -45,6 +45,8 @@ export function describeEvent(e: GameEvent, nameOf: (id: PlayerId) => string): s
       return t.log.eliminated(nameOf(e.player));
     case 'timedOut':
       return t.log.timedOut(nameOf(e.player));
+    case 'left':
+      return t.log.left(nameOf(e.player));
     case 'shieldPlaced':
       return t.log.defencePlaced(nameOf(e.by), nameOf(e.target), cardText(e.card), e.replaced && cardText(e.replaced));
     case 'munitionGiven':
@@ -62,6 +64,7 @@ const MOVES: ReadonlySet<GameEvent['type']> = new Set([
   'shieldPlaced',
   'munitionGiven',
   'timedOut',
+  'left',
 ]);
 
 export interface LastAction {

@@ -181,6 +181,9 @@ The most recently discarded cards end up at the bottom, the oldest ones on top.
 - This elimination does **not** give a hunter turn, and does **not** count towards the hunter setting:
   with "first player eliminated", the next player eliminated in play is still the hunter.
 - No timer for a player who stays connected but does not play.
+- **Leaving the game**: a player can leave a game in progress from the menu, after confirming. It works like the 1-minute
+  elimination above: they are eliminated at once, their cards go to the side pot (including a card they had already drawn),
+  there is no hunter turn, and it does not count towards the hunter setting. They can keep watching as a spectator.
 - **Looking at a player**: when the active player picks a player (before choosing an action), everyone sees it
   ("Theo is looking at Chloé's game"). It can change until the action is chosen, and it is not kept in the game log.
   It warns the others, who can react in the chat.
@@ -211,3 +214,5 @@ None for now.
   instead of happening automatically inside the draw. Same result, but the table sees it happen.
 - **2026-10-23**: Setup (section 3): a player's defence and life cards are revealed as soon as they choose, instead of all
   together once everyone has chosen (owner). Nobody sees their own values before choosing, so it changes nothing to the choice.
+- **2026-10-23**: Leaving the game (section 10), owner: possible at any time from the menu, with the same effects as the
+  1-minute elimination (no hunter turn). The player then watches as a spectator.

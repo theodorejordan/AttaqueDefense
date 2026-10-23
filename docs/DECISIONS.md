@@ -268,6 +268,18 @@ Two use cases, two commands:
     event (`src/client/log/describe.ts`, shared with the last-action line). Only actions are listed (owner): no "Ada's turn",
     no draws, no blind defence choices. Hunter turns stay, since they are rare and change who plays.
 
+- **Step 4e, chat, Menu and ranking** (2026-10-23, owner):
+  - **Chat at the table**: bottom right, **always open** (history above the message field, no toggle). A seated player's
+    new message shows as a dark speech bubble next to their name for **3 s**; a newer one replaces it. Bubbles are narrow
+    (2 lines at most, the full text is in the history). Spectators' messages only show in the history. Chat is not played
+    back: bubbles show at once.
+  - **Menu** (top right, next to Game log; one panel open at a time): the **damage preference** (with a one-line
+    explanation each), **How to play** (a short version of RULES.md, EN and FR), and **Leave the game** (RULES 10) behind a
+    confirmation. Spectators and eliminated players only get How to play.
+  - **Ranking** (bottom left): as mocked, filled from the bottom in elimination order (from the log, following the playback);
+    the winner takes 1st at the end. Ordinals with `Intl.PluralRules` (`type: 'ordinal'`) in English, "1er, 2e…" in French.
+  - The step 3 debug page is deleted: the table covers everything it did.
+
 ## Accounts (2026-10-22, owner, to design later)
 
 - Players will have **accounts**: login with email and password, and an official pseudo (unique display name),

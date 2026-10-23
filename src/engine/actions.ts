@@ -229,13 +229,23 @@ function eliminate(state: GameState, player: Player, events: GameEvent[]) {
  * No hunter turn, and it does not count towards the hunter setting.
  */
 export function eliminateAfterTimeout(state: GameState, playerId: PlayerId): Result {
+  return eliminateAway(state, playerId, { type: 'timedOut', player: playerId });
+}
+
+/** RULES 10: a player leaves the game from the menu. Same effects as a timeout. Called by the server. */
+export function leaveGame(state: GameState, playerId: PlayerId): Result {
+  return eliminateAway(state, playerId, { type: 'left', player: playerId });
+}
+
+/** A player gone from the game (timeout or leaving): eliminated, their cards to the side pot, no hunter turn. */
+function eliminateAway(state: GameState, playerId: PlayerId, reason: GameEvent): Result {
   if (state.phase === 'finished') throw new IllegalMoveError('The game is over');
   const isTheirTurn = state.turn?.player === playerId;
   // A hunter is already eliminated: only their hunter turn is left to cancel.
   if (getPlayer(state, playerId).eliminated && !isTheirTurn) throw new IllegalMoveError('Already eliminated');
 
   const next = cloneState(state);
-  const events: GameEvent[] = [{ type: 'timedOut', player: playerId }];
+  const events: GameEvent[] = [reason];
   const player = getPlayer(next, playerId);
   if (!player.eliminated) {
     next.sidePot.push(...player.dealt);

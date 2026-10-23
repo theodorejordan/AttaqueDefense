@@ -64,6 +64,8 @@ export type Request =
   /** The active player looks at a player (or nobody) before choosing an action (RULES 10). */
   | { type: 'look'; target: PlayerId | null }
   | { type: 'chat'; text: string }
+  /** Leave a game in progress (RULES 10): eliminated at once, no hunter turn. The tab keeps watching as a spectator. */
+  | { type: 'leaveGame' }
   | { type: 'backToLobby' };
 
 /**

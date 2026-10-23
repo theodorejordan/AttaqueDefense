@@ -93,6 +93,8 @@ export type GameEvent =
   | { type: 'eliminated'; player: PlayerId }
   /** A disconnected player the game waited for too long (RULES 10). Followed by `eliminated`. */
   | { type: 'timedOut'; player: PlayerId }
+  /** A player who left the game from the menu (RULES 10). Followed by `eliminated`. */
+  | { type: 'left'; player: PlayerId }
   | { type: 'shieldPlaced'; by: PlayerId; target: PlayerId; card: Card; replaced: Card | null }
   | { type: 'munitionGiven'; by: PlayerId; target: PlayerId }
   | { type: 'gameOver'; winner: PlayerId | null };

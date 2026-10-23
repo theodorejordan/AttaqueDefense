@@ -307,3 +307,106 @@
   background: var(--felt);
   font-size: calc(15px * var(--text-scale));
 }
+
+/* A chat message next to the name, for a few seconds: dark, narrow, at most 2 lines (the full text is in the chat). */
+.seat.has-bubble {
+  z-index: 3;
+}
+
+.bubble {
+  position: absolute;
+  top: 50%;
+  display: -webkit-box;
+  width: max-content;
+  max-width: calc(170px * var(--text-scale));
+  padding: 7px 11px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--ground);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  transform: translateY(-50%);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.18);
+}
+
+.bubble.right {
+  left: calc(100% + 10px);
+}
+
+.bubble.left {
+  right: calc(100% + 10px);
+}
+
+/* Bottom left: one slot per player, filled from the bottom as players are eliminated. */
+.ranking {
+  position: absolute;
+  left: 24px;
+  bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: calc(13px * var(--text-scale));
+}
+
+.ranking h2 {
+  margin: 0;
+  color: var(--muted);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 400;
+}
+
+.ranking ol {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--rows), auto);
+  column-gap: 20px;
+  row-gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ranking li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: calc(96px * var(--text-scale));
+}
+
+.ranking .place {
+  min-width: 2.2em;
+  color: var(--muted);
+  font-family: var(--font-card);
+}
+
+.ranking .ranked {
+  font-weight: 600;
+}
+
+.ranking .ranked.empty {
+  color: var(--line);
+  font-weight: 400;
+}
+
+/* Bottom right, always open: the history above the message field. */
+.table-chat {
+  position: absolute;
+  right: 24px;
+  bottom: 22px;
+  width: min(calc(340px * var(--text-scale)), calc(100vw - 48px));
+}
+
+.table-chat .chat-messages {
+  height: calc(120px * var(--text-scale));
+}
+
+.table-chat .chat-message {
+  font-size: calc(13px * var(--text-scale));
+}

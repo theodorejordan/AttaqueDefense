@@ -21,6 +21,7 @@ import {
   applyCommand,
   createGame,
   eliminateAfterTimeout,
+  leaveGame,
   getPlayer,
   hasChosenShield,
   randomBot,
@@ -142,6 +143,9 @@ export class Room {
         break;
       case 'game':
         this.#play(clientId, request.command);
+        break;
+      case 'leaveGame':
+        this.#leaveGame(clientId);
         break;
       case 'backToLobby':
         this.#backToLobby(clientId);
@@ -289,6 +293,19 @@ export class Room {
     if (this.#isOver()) throw new RoomError('gameOver');
     const game = this.#game;
     this.#apply(() => applyCommand(game, seat.id, command));
+  }
+
+  /** Leaving from the menu (RULES 10): eliminated at once; the seat's tabs keep watching as spectators. */
+  #leaveGame(clientId: string) {
+    const seat = this.#requireSeat(clientId);
+    const game = this.#game;
+    if (!game) throw new RoomError('noGame');
+    if (this.#isOver()) throw new RoomError('gameOver');
+    // Throws before anything changes if they cannot leave (already eliminated).
+    const result = leaveGame(game, seat.id);
+    // Freed first, so the update below already shows its tabs as spectators. The seat is not in the next lobby.
+    this.#removeSeat(seat);
+    this.#apply(() => result);
   }
 
   /** Runs an engine function and sends the result to everyone. */

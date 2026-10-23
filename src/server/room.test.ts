@@ -238,6 +238,22 @@ describe('disconnections (RULES 10)', () => {
   });
 });
 
+describe('leaving a game (RULES 10)', () => {
+  it('eliminates the player at once, without a hunter turn, and they keep watching as a spectator', () => {
+    const { room, view, last, game, clientOf } = threeHumansPlaying();
+    const leaver = clientOf(game().turn!.player);
+    const id = view(leaver).you!;
+    room.request(leaver, { type: 'leaveGame' });
+    const watcher = ['A', 'B', 'C'].find((c) => c !== leaver)!;
+    expect(last(watcher).events[0]).toEqual({ type: 'left', player: id });
+    expect(view(watcher).game!.players.find((p) => p.id === id)!.eliminated).toBe(true);
+    expect(view(watcher).game!.turn?.isHunter).toBe(false);
+    expect(view(leaver).you).toBeNull();
+    expect(view(leaver).game).not.toHaveProperty('you');
+    expect(view(watcher).members.map((m) => m.id)).not.toContain(id);
+  });
+});
+
 describe('looking at a player (RULES 10)', () => {
   it('shows everyone who the active player looks at, until the move is played', () => {
     const { room, view, game, clientOf } = threeHumansPlaying();
