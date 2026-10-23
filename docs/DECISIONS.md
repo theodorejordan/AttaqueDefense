@@ -144,6 +144,11 @@ Two use cases, two commands:
     and keeps its deck disabled until its own animations end.
   - **Elimination** (owner, 2026-10-23, step 4f): a short death animation on the eliminated player, then the other players'
     cards move to their new places around the table.
+  - **The death animation: "K.O. smash + pop"** (owner, 2026-10-23, chosen from a prototype): the attack cards lift and slam
+    down onto the life cards; the life cards and the defence crack along a zigzag and split into two tilted halves, small
+    shards fly, a few red sparks at the impact, the seat shakes (only the seat, not the whole table). A small red "K.O."
+    stamp lands **next to the name** with a small comic burst behind it, so the cards stay visible. The broken cards stay
+    about 1 s, then everything flies to the side pot and the halves join back together on the way. About 2 s before the flights.
   - **Attack timing** (owner, 2026-10-23), as at a real table:
     1. The attack cards land **on top of** the target's defence, tilted and shifted to one side: the defence stays readable.
        Nothing else changes yet: same life cards, same defence.

@@ -70,7 +70,10 @@ Technical approach to discuss and approve first (the main design choice of 4f):
 - **Seats sliding** after an elimination: a CSS transition on each seat's `left`, `top` and `transform` may be enough.
 - Respect [`prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion):
   shorter or simpler motion, same order.
-- **Open: the death animation** ("small", owner). Show 2–3 ideas (mockup or quick prototype) before building.
+- **Death animation: decided** (2026-10-23): "K.O. smash + pop", see `DECISIONS.md` > UI > Animations. Built as a
+  throwaway prototype (Web Animations API: card split with two `clip-path` copies, SVG crack, shards, sparks, burst).
+  **Open**: for a knockout, the smash replaces the "target's cards change" step of the attack timing (no extra 2 s)?
+  And eliminations without an attack (1-minute timeout, leaving) only crack the cards and stamp K.O.? (Claude's proposals.)
 - Testing: playback frames stay pure and unit-tested (`playback.test.ts`); motion is checked by eye. A headless Chrome
   screenshot script was used in this session (scratchpad, not in the repo); a dev page that replays a sample game
   without the server could help, like `gallery.html`.
