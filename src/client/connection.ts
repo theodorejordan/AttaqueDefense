@@ -29,6 +29,7 @@ const CHAT_KEPT = 100;
 
 let state: ConnectionState = { connected: false, room: null, log: [], chat: [], error: null };
 const listeners = new Set<() => void>();
+const eventListeners = new Set<(events: GameEvent[]) => void>();
 
 function update(patch: Partial<ConnectionState>) {
   state = { ...state, ...patch };
@@ -42,13 +43,14 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io({
 
 socket.on('connect', () => update({ connected: true }));
 socket.on('disconnect', () => update({ connected: false }));
-socket.on('update', (message) =>
+socket.on('update', (message) => {
   update({
     room: message.room,
     log: message.log ?? [...state.log, ...message.events],
     chat: message.chat ?? state.chat,
-  }),
-);
+  });
+  if (message.events.length > 0) eventListeners.forEach((listener) => listener(message.events));
+});
 socket.on('chat', (message) => update({ chat: [...state.chat, message].slice(-CHAT_KEPT) }));
 
 /** Sends a request. Resolves to true if the server accepted it; otherwise the error is kept in the state. */
@@ -82,4 +84,15 @@ export function useConnection(): ConnectionState {
     };
   }, []);
   return state;
+}
+
+/**
+ * Calls `listener` with each batch of new game events, as they happen: what animations react to.
+ * The log sent on (re)connection is not replayed. Returns the function that stops listening.
+ */
+export function onEvents(listener: (events: GameEvent[]) => void): () => void {
+  eventListeners.add(listener);
+  return () => {
+    eventListeners.delete(listener);
+  };
 }

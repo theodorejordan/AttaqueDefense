@@ -98,6 +98,7 @@ export const en = {
   app: {
     connecting: 'Connecting…',
     language: 'Language',
+    gameLog: 'Game log',
   },
   table: {
     pickDefence: 'Pick your defence',
@@ -166,17 +167,19 @@ export const en = {
   },
   log: {
     title: 'Log',
+    empty: 'Nothing has happened yet.',
     defenceChosen: (who: string) => `${who} chose a defence`,
     gameStarted: (first: string) => `Defences revealed. ${first} starts`,
     turnStarted: (who: string) => `${who}'s turn`,
     hunterTurn: (who: string) => `${who} plays as hunter`,
-    deckFlipped: (count: number) =>
-      `Side pot flipped into a new draw deck (${plural('en', count, { one: 'card', other: 'cards' })})`,
+    deckFlipped: (who: string, count: number) =>
+      `${who} flipped the side pot into a new draw deck (${plural('en', count, { one: 'card', other: 'cards' })})`,
     drew: (who: string) => `${who} drew`,
-    attacked: (attacker: string, target: string, cards: string, total: number, defence: string | null, destroyed: boolean, damage: number) =>
-      `${attacker} attacked ${target} with ${cards} = ${total}` +
+    /** `attack`: "7♥", or "7♥ + 3♠ = 10" with munitions. */
+    attacked: (attacker: string, target: string, attack: string, defence: string | null, destroyed: boolean, damage: number) =>
+      `${attacker} attacked ${target}: ${attack}` +
       (defence ? `, defence ${defence} ${destroyed ? 'destroyed' : 'holds'}` : '') +
-      `, ${damage} damage`,
+      (damage > 0 ? `, ${damage} damage` : ''),
     damaged: (who: string, damage: number, before: string, after: string) => `${who} took ${damage}: ${before} → ${after}`,
     munitionsLost: (who: string, cards: string) => `${who} lost their munitions: ${cards}`,
     eliminated: (who: string) => `${who} is eliminated`,

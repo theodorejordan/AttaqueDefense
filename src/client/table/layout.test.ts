@@ -8,22 +8,22 @@ describe('seatingOrder', () => {
   const players = ['A', 'B', 'C', 'D'].map((id) => seat(id));
 
   it('starts from you and goes on in playing order', () => {
-    expect(seatingOrder(players, 'C', null)).toEqual(['C', 'D', 'A', 'B']);
+    expect(seatingOrder(players, 'C', [])).toEqual(['C', 'D', 'A', 'B']);
   });
 
   it('starts from the first seat for a spectator', () => {
-    expect(seatingOrder(players, null, null)).toEqual(['A', 'B', 'C', 'D']);
+    expect(seatingOrder(players, null, [])).toEqual(['A', 'B', 'C', 'D']);
   });
 
-  it('removes eliminated players, but keeps a hunter during their hunter turn', () => {
+  it('removes eliminated players, but keeps the ones asked for (a hunter, a player just knocked out)', () => {
     const list = [seat('A'), seat('B', true), seat('C', true), seat('D')];
-    expect(seatingOrder(list, 'A', null)).toEqual(['A', 'D']);
-    expect(seatingOrder(list, 'A', 'C')).toEqual(['A', 'C', 'D']);
+    expect(seatingOrder(list, 'A', [])).toEqual(['A', 'D']);
+    expect(seatingOrder(list, 'A', ['C'])).toEqual(['A', 'C', 'D']);
   });
 
   it('starts from the next player still in the game once you are eliminated', () => {
     const list = [seat('A'), seat('B', true), seat('C'), seat('D')];
-    expect(seatingOrder(list, 'B', null)).toEqual(['C', 'D', 'A']);
+    expect(seatingOrder(list, 'B', [])).toEqual(['C', 'D', 'A']);
   });
 });
 
@@ -58,9 +58,12 @@ describe('tableLayout', () => {
     }
   });
 
-  it('uses the mockup card sizes on a big screen and shrinks them on a smaller one', () => {
-    expect(tableLayout(['A', 'B', 'C', 'D', 'E', 'F'], { width: 1920, height: 1080 })).toMatchObject({ scale: 1, cardWidth: 66 });
-    expect(tableLayout(['A', 'B', 'C', 'D', 'E', 'F'], { width: 1440, height: 450 })).toMatchObject({ scale: 0.5, cardWidth: 33 });
+  it('uses the mockup card sizes on a mockup-sized screen, smaller or bigger ones otherwise, up to twice as big', () => {
+    const six = ['A', 'B', 'C', 'D', 'E', 'F'];
+    expect(tableLayout(six, SCREEN)).toMatchObject({ scale: 1, cardWidth: 66 });
+    expect(tableLayout(six, { width: 1440, height: 450 })).toMatchObject({ scale: 0.5, cardWidth: 33 });
+    expect(tableLayout(six, { width: 2560, height: 1440 })).toMatchObject({ scale: 1.6, cardWidth: 106 });
+    expect(tableLayout(six, { width: 5120, height: 2880 })).toMatchObject({ scale: 2, cardWidth: 132 });
   });
 });
 

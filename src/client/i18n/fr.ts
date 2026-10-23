@@ -92,6 +92,7 @@ export const fr: Messages = {
   app: {
     connecting: 'Connexion…',
     language: 'Langue',
+    gameLog: 'Historique',
   },
   table: {
     pickDefence: 'Choisis ta défense',
@@ -158,17 +159,18 @@ export const fr: Messages = {
   },
   log: {
     title: 'Historique',
+    empty: 'Rien ne s’est encore passé.',
     defenceChosen: (who) => `${who} a choisi sa défense`,
     gameStarted: (first) => `Défenses révélées. ${first} commence`,
     turnStarted: (who) => `Au tour de ${who}`,
     hunterTurn: (who) => `${who} joue en chasseur`,
-    deckFlipped: (count) =>
-      `La défausse est retournée et devient la pioche (${plural('fr', count, { one: 'carte', other: 'cartes' })})`,
+    deckFlipped: (who, count) =>
+      `${who} a retourné la défausse, qui devient la pioche (${plural('fr', count, { one: 'carte', other: 'cartes' })})`,
     drew: (who) => `${who} a pioché`,
-    attacked: (attacker, target, cards, total, defence, destroyed, damage) =>
-      `${attacker} a attaqué ${target} avec ${cards} = ${total}` +
+    attacked: (attacker, target, attack, defence, destroyed, damage) =>
+      `${attacker} a attaqué ${target} : ${attack}` +
       (defence ? `, défense ${defence} ${destroyed ? 'détruite' : 'tient'}` : '') +
-      `, ${plural('fr', damage, { one: 'dégât', other: 'dégâts' })}`,
+      (damage > 0 ? `, ${plural('fr', damage, { one: 'dégât', other: 'dégâts' })}` : ''),
     damaged: (who, damage, before, after) => `${who} perd ${damage} : ${before} → ${after}`,
     munitionsLost: (who, cards) => `${who} a perdu ses munitions : ${cards}`,
     eliminated: (who) => `${who} est éliminé`,

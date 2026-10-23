@@ -1,5 +1,6 @@
 // One player at the table (docs/DECISIONS.md > UI > Visual style): life cards with the defence turned 90° over them on the
 // centre side, munitions stacked beside them, the name below and upright. The whole seat is turned to face the centre.
+import type { Card as CardData } from '../../engine/cards.ts';
 import { CARDS_DEALT } from '../../engine/setup.ts';
 import type { PlayerSummary } from '../../engine/view.ts';
 import type { Member } from '../../shared/protocol.ts';
@@ -19,7 +20,9 @@ interface SeatProps {
   turn: TurnMark;
   /** The active player is looking at this player: a black outline, over the turn outline (RULES 10). */
   looked: boolean;
-  /** The setup phase: cards are still face-down (RULES 3). */
+  /** The cards of an attack on this player, shown face-up over their defence for a few seconds. */
+  attack: CardData[] | null;
+  /** The setup phase: a player who has not chosen yet shows 4 face-down cards (RULES 3). */
   choosing: boolean;
   /** Set when you can look at this player (your turn, card drawn). */
   onPick?: () => void;
@@ -27,7 +30,7 @@ interface SeatProps {
   onChooseDefence?: (cardIndex: number) => void;
 }
 
-export function Seat({ player, member, place, cardWidth, isYou, turn, looked, choosing, onPick, onChooseDefence }: SeatProps) {
+export function Seat({ player, member, place, cardWidth, isYou, turn, looked, attack, choosing, onPick, onChooseDefence }: SeatProps) {
   const cards = <SeatCards player={player} width={cardWidth} choosing={choosing} onChooseDefence={onChooseDefence} />;
   const away = point(outward(place.rotation));
   const tags = [
@@ -65,6 +68,13 @@ export function Seat({ player, member, place, cardWidth, isYou, turn, looked, ch
           {cards}
         </button>
       )}
+      {attack && (
+        <div class="attack-cards" role="img" aria-label={attack.map((card) => t.cards.name(card.rank, card.suit)).join(', ')}>
+          {attack.map((card, i) => (
+            <Card key={i} card={card} width={cardWidth} />
+          ))}
+        </div>
+      )}
       {/* A point under the cards, turned back upright; the name hangs from it on the side away from the centre. */}
       <div class="seat-name-anchor" style={{ transform: `rotate(${-place.rotation}deg)` }}>
         <div class="seat-name" style={{ transform: `translate(calc(-50% + ${away.x}%), calc(-50% + ${away.y}%))` }}>
@@ -96,7 +106,7 @@ interface SeatCardsProps {
 }
 
 function SeatCards({ player, width, choosing, onChooseDefence }: SeatCardsProps) {
-  // During the blind choice nobody sees the values (RULES 3): 4 face-down cards, then a defence and 3 life cards.
+  // Nobody sees the dealt cards (RULES 3). Once a player has chosen, their cards show at once.
   if (choosing && !player.hasChosenShield) {
     return (
       <div class="hand">
@@ -114,19 +124,16 @@ function SeatCards({ player, width, choosing, onChooseDefence }: SeatCardsProps)
       </div>
     );
   }
-  const life = choosing ? Array.from({ length: CARDS_DEALT - 1 }, () => null) : player.life;
-  const defence = choosing ? null : player.shield;
-  const hasDefence = choosing || player.shield !== null;
   return (
     <>
       <div class="hand">
-        {hasDefence && (
+        {player.shield && (
           <div class="defence">
-            <Card card={defence} width={width} sideways />
+            <Card card={player.shield} width={width} sideways />
           </div>
         )}
         <div class="life">
-          {life.map((card, i) => (
+          {player.life.map((card, i) => (
             <Card key={i} card={card} width={width} />
           ))}
         </div>

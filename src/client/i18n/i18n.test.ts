@@ -17,9 +17,9 @@ describe('languages', () => {
   });
 
   it('uses each language plural rules', () => {
-    expect(en.log.deckFlipped(1)).toContain('1 card)');
-    expect(en.log.deckFlipped(0)).toContain('0 cards');
-    expect(fr.log.deckFlipped(0)).toContain('0 carte)');
-    expect(fr.log.deckFlipped(2)).toContain('2 cartes');
+    expect(en.log.deckFlipped('Ada', 1)).toContain('1 card)');
+    expect(en.log.deckFlipped('Ada', 0)).toContain('0 cards');
+    expect(fr.log.deckFlipped('Ada', 0)).toContain('0 carte)');
+    expect(fr.log.deckFlipped('Ada', 2)).toContain('2 cartes');
   });
 });

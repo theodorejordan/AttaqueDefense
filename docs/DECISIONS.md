@@ -128,6 +128,8 @@ Two use cases, two commands:
   - Defence: the card flips face-up onto the target's defence spot. Munition: it slides face-down onto the target's munition stack.
   - **The wait is client-side**: the server applies moves at once and sends events; each device plays them in order
     and keeps its deck disabled until its own animations end.
+  - **Elimination** (owner, 2026-10-23, step 4f): a short death animation on the eliminated player, then the other players'
+    cards move to their new places around the table.
 - **Main info text** (2026-10-19): in the middle, above the deck: whose turn it is, hunter turns, who hit whom.
 - **Game log** (2026-10-19): every player can open it on their device at any time. The server keeps the event history
   and sends it to a player who reconnects.
@@ -225,11 +227,12 @@ Two use cases, two commands:
   Every screen reads the server state through `src/client/connection.ts`; refused requests show as a short message.
 - **Step 4d, table** (2026-10-23, owner): the table fills the window and the top bar floats over it.
   - **Fits the window**: the oval is computed from the measured table size
-    ([`ResizeObserver`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver)). Cards keep the mockup sizes on a
-    1440 × 900 screen or bigger and shrink in proportion on a smaller one. Chosen over scaling a fixed 1440 × 900 picture
+    ([`ResizeObserver`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver)). Cards have the mockup sizes on a
+    1440 × 900 screen and scale with the screen from there: smaller on a small one, up to 2× on a large one, where the table's
+    text grows too (owner, 2026-10-23: cards were too small on a big screen). Chosen over scaling a fixed 1440 × 900 picture
     (empty bands, text shrinking, a rewrite for the mobile pass).
   - **Defence choice**: your 4 face-down cards at your seat, "Pick your defence" in the centre, click one. Other seats show
-    4 face-down cards, then a face-down defence and 3 life cards once that player has chosen; all are revealed together.
+    4 face-down cards, then their defence and life cards face-up as soon as that player has chosen (RULES 3, 2026-10-23).
   - "Looking at" is drawn from the server's `lookingAt` only, so every screen shows the same outline. Click a seat to look
     at it; click it again, click the empty table or press Esc to stop. Allowed actions come from the engine's `playsFor`.
   - You at the bottom; once you are eliminated (or for a spectator), the next player still in the game takes the bottom seat.
@@ -237,6 +240,16 @@ Two use cases, two commands:
   - Tags next to names: bot, away (disconnected; eliminated after 1 minute if the game waits for them, RULES 10),
     playing / your turn, Hunter.
   - Until 4g, a finished game shows the winner in the centre text and a "Back to lobby" button for the host.
+- **After the first 4d test** (2026-10-23, owner):
+  - **Last action**: a grey line above the centre text gives the latest move, with the cards
+    ("Basile attacked Ada: 7♥ + 3♠ = 10, defence 8♦ destroyed, 2 damage"), plus whoever it eliminated.
+  - **Attack cards stay visible 4 s**: face-up over the target's defence (the server already waits 4 s before a bot plays after
+    an attack). A static first version of the 4f attack animation: 4f adds the flip and the flight. Your deck stays disabled
+    meanwhile, and a player knocked out by the attack stays seated until it ends. Animations react to new events
+    (`onEvents` in `connection.ts`), never to the log sent on (re)connection.
+  - **Game log** pulled forward from 4e: a "Game log" button in the top bar opens a panel, newest first, one sentence per
+    event (`src/client/log/describe.ts`, shared with the last-action line). Only actions are listed (owner): no "Ada's turn",
+    no draws, no blind defence choices. Hunter turns stay, since they are rare and change who plays.
 
 ## Accounts (2026-10-22, owner, to design later)
 

@@ -31,7 +31,8 @@ If the code and this file disagree, this file wins (or the file gets updated aft
 1. Shuffle the deck. Deal 4 face-down cards to each player.
 2. All players choose **at the same time**, **without seeing the values**, which of their 4 cards is their defence.
    The other 3 become their life cards. The game starts once every player has chosen.
-3. All defences and life cards are then revealed.
+3. Each player's defence and life cards are revealed as soon as they have chosen. The choice is blind,
+   so seeing the others' cards gives no useful information.
 4. **First player**: lowest life points. Tie → lowest defence. Still tied → random.
 
 ## 4. Turn structure
@@ -208,3 +209,5 @@ None for now.
   it lets the others see an attack coming and talk about it in the chat.
 - **2026-10-22**: Flipping the side pot (section 7) is an action of the player who must draw, done before drawing,
   instead of happening automatically inside the draw. Same result, but the table sees it happen.
+- **2026-10-23**: Setup (section 3): a player's defence and life cards are revealed as soon as they choose, instead of all
+  together once everyone has chosen (owner). Nobody sees their own values before choosing, so it changes nothing to the choice.

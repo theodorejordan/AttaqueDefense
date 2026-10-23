@@ -18,6 +18,8 @@ const DECK_THICKNESS = 3;
 
 interface CentreProps {
   prompt: Prompt;
+  /** The latest move, in grey above the centre text. */
+  lastAction: string | null;
   nameOf: (id: PlayerId) => string;
   you: PlayerId | null;
   scale: number;
@@ -83,6 +85,7 @@ export function Centre(props: CentreProps) {
         )}
       </div>
 
+      <p class="last-action">{props.lastAction}</p>
       <p class="prompt" aria-live="polite">
         <span class="prompt-main">{main}</span>
         {sub && <span class="prompt-sub"> · {sub}</span>}

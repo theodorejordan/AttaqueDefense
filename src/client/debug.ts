@@ -6,6 +6,7 @@ import type { Card } from '../engine/cards.ts';
 import type { ActionType, DamagePreference, GameEvent, PlayerId } from '../engine/state.ts';
 import type { ClientToServerEvents, ErrorCode, Request, RoomView, ServerToClientEvents } from '../shared/protocol.ts';
 import { LANGUAGES, getLanguage, setLanguage, t } from './i18n/index.ts';
+import { cardText, describeEvent } from './log/describe.ts';
 
 // In dev mode each tab is a separate player (docs/DECISIONS.md > Lobby and server).
 const storage = import.meta.env.DEV ? sessionStorage : localStorage;
@@ -50,8 +51,6 @@ function h(tag: string, props: Record<string, unknown> = {}, ...children: (Node 
 }
 
 const button = (label: string, onclick: () => void, disabled = false) => h('button', { onclick, disabled }, label);
-const SUITS = { hearts: '♥', diamonds: '♦', clubs: '♣', spades: '♠' };
-const cardText = (card: Card) => `${t.ranks[card.rank]}${SUITS[card.suit]}`;
 const cardsText = (cards: Card[]) => cards.map(cardText).join(' ') || '—';
 const nameOf = (id: PlayerId | null) => room?.members.find((m) => m.id === id)?.name ?? id ?? t.nobody;
 
@@ -196,43 +195,8 @@ function renderGame(room: RoomView) {
 }
 
 function renderLog() {
-  return h('div', {}, h('h2', {}, t.log.title), h('ol', { reversed: true }, ...[...log].reverse().map((e) => h('li', {}, describeEvent(e)))));
-}
-
-function describeEvent(e: GameEvent): string {
-  switch (e.type) {
-    case 'shieldChosen':
-      return t.log.defenceChosen(nameOf(e.player));
-    case 'gameStarted':
-      return t.log.gameStarted(nameOf(e.firstPlayer));
-    case 'turnStarted':
-      return t.log.turnStarted(nameOf(e.player));
-    case 'hunterTurn':
-      return t.log.hunterTurn(nameOf(e.player));
-    case 'deckFlipped':
-      return t.log.deckFlipped(e.cardCount);
-    case 'drew':
-      return t.log.drew(nameOf(e.player));
-    case 'attacked':
-      return t.log.attacked(
-        nameOf(e.attacker), nameOf(e.target), cardsText(e.cards), e.total,
-        e.shield && cardText(e.shield), e.shieldDestroyed, e.damage,
-      );
-    case 'damaged':
-      return t.log.damaged(nameOf(e.player), e.damage, cardsText(e.before), cardsText(e.after));
-    case 'munitionsLost':
-      return t.log.munitionsLost(nameOf(e.player), cardsText(e.cards));
-    case 'eliminated':
-      return t.log.eliminated(nameOf(e.player));
-    case 'timedOut':
-      return t.log.timedOut(nameOf(e.player));
-    case 'shieldPlaced':
-      return t.log.defencePlaced(nameOf(e.by), nameOf(e.target), cardText(e.card), e.replaced && cardText(e.replaced));
-    case 'munitionGiven':
-      return t.log.munitionGiven(nameOf(e.by), nameOf(e.target));
-    case 'gameOver':
-      return t.game.over(nameOf(e.winner));
-  }
+  const nameOfPlayer = (id: PlayerId) => nameOf(id);
+  return h('div', {}, h('h2', {}, t.log.title), h('ol', { reversed: true }, ...[...log].reverse().map((e) => h('li', {}, describeEvent(e, nameOfPlayer)))));
 }
 
 render();

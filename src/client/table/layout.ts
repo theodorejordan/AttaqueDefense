@@ -3,8 +3,9 @@
 // Pure functions, so they are tested without a browser.
 import type { PlayerId } from '../../engine/state.ts';
 
-/** The mockups were drawn for a 1440 × 900 screen: a smaller table scales everything down, a bigger one keeps these sizes. */
+/** The mockups were drawn for a 1440 × 900 screen: the table scales from there, up to twice as big on a large screen. */
 const REFERENCE = { width: 1440, height: 900 };
+const MAX_SCALE = 2;
 /** Width of the deck, side pot and drawn card at full size, whatever the number of players. */
 export const PILE_CARD_WIDTH = 80;
 /** Size of the name under a player's cards (a long name with its tags), and the space kept around the table. */
@@ -27,16 +28,17 @@ export function cardWidth(players: number): number {
 
 /**
  * The players at the table, clockwise from the bottom seat: you, or the next player still in the game after you
- * (spectators start from the first seat). Eliminated players leave the table, except a hunter during their hunter turn.
+ * (spectators start from the first seat). Eliminated players leave the table, except those in `kept`:
+ * a hunter during their hunter turn, a player while the attack that eliminated them is shown.
  */
 export function seatingOrder(
   players: readonly { id: PlayerId; eliminated: boolean }[],
   you: PlayerId | null,
-  hunter: PlayerId | null,
+  kept: readonly PlayerId[],
 ): PlayerId[] {
   const start = Math.max(0, players.findIndex((p) => p.id === you));
   return [...players.slice(start), ...players.slice(0, start)]
-    .filter((p) => !p.eliminated || p.id === hunter)
+    .filter((p) => !p.eliminated || kept.includes(p.id))
     .map((p) => p.id);
 }
 
@@ -57,7 +59,7 @@ export interface SeatPlace extends Point {
 }
 
 export interface TableLayout {
-  /** 1 on a screen as big as the mockups', less on a smaller one. */
+  /** 1 on a screen as big as the mockups', less on a smaller one, up to 2 on a large one. */
   scale: number;
   /** Width of the players' cards, in px. */
   cardWidth: number;
@@ -67,7 +69,7 @@ export interface TableLayout {
 
 /** Places the seats (centre of each player's cards) on an oval around the centre of a table of the given size. */
 export function tableLayout(order: readonly PlayerId[], size: Size): TableLayout {
-  const scale = Math.min(1, size.width / REFERENCE.width, size.height / REFERENCE.height);
+  const scale = Math.min(MAX_SCALE, size.width / REFERENCE.width, size.height / REFERENCE.height);
   const w = cardWidth(order.length) * scale;
   // A seat before rotation: the defence over the life cards, the munitions beside them, the name below.
   const cardsHeight = w * (0.65 + 1.4);

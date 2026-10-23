@@ -47,11 +47,13 @@ and imports use the `.ts` extension.
   - `validate.ts`: checks the shape of every client payload (clients are untrusted).
   - `index.ts`: HTTP + Socket.IO wiring; `--dev` serves the client through Vite middleware mode.
 - `src/client/`: the real UI (Preact + TSX, step 4). `main.tsx` → `App.tsx` picks the screen from the room state.
-  - `connection.ts`: Socket.IO link, seat token, latest room/log/chat; components use `useConnection()` and `send()`.
+  - `connection.ts`: Socket.IO link, seat token, latest room/log/chat; components use `useConnection()` and `send()`,
+    animations listen to new events with `onEvents()`.
   - `lobby/`, `chat/`: the lobby screen and the chat panel. `styles/controls.css`: shared buttons, choices, tags, fields.
   - `table/`: the game screen. `layout.ts` (seats on the oval, card sizes), `prompt.ts` (centre text as data),
     `Table.tsx`, `Seat.tsx` (one player), `Centre.tsx` (deck, side pot, drawn card, text, action buttons).
-  - `debug.html` + `debug.ts`: the step 3 debug page, kept until the end of step 4 (damage preference and log until 4e).
+  - `log/`: `describe.ts` (one sentence per event, the last action) and the `GameLog` panel.
+  - `debug.html` + `debug.ts`: the step 3 debug page, kept until the end of step 4 (damage preference until 4e).
   - `cards/`: the `Card` piece (`Card.tsx`, `card.css`) and what is drawn on faces (`faces.ts`: suit paths, pips, court patterns).
   - `styles/base.css`: colours (CSS variables) and the self-hosted fonts. `gallery.html`: dev page showing every card.
   - `i18n/`: English and French texts (`en.ts`, `fr.ts`, same keys, checked by TypeScript), `t`, language detection and switch.

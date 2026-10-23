@@ -40,7 +40,8 @@ export function spectatorView(state: GameState): SpectatorView {
   return {
     phase: state.phase,
     settings: { ...state.settings },
-    // During the shield choice, `life` and `shield` are still empty: the dealt cards stay hidden.
+    // During the shield choice, `life` and `shield` stay empty until the player chooses, then show at once (RULES 3).
+    // The dealt cards stay hidden.
     players: state.players.map((p) => ({
       id: p.id,
       name: p.name,
