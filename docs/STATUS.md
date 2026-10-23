@@ -33,6 +33,7 @@ Last updated: 2026-10-23. Update this file whenever a step starts or ends, or a 
 - **Bots (step 7)**: levels scaled like Stockfish, by rating (about 800 / 1200 / 1600 / 2000 Elo). Godlike never cheats.
   Bots have names; faces from photos postponed. Details to discuss again at step 7.
 - **Accounts** (owner, 2026-10-22): email + password, official pseudo, future leaderboards. Design and timing to discuss (`DECISIONS.md` > Accounts).
+  Settled 2026-10-23: SQLite for the database; Resend (emails) and Simple Analytics soon after `v0.1.0`; a "What's new" modal after each feature release.
 - **Long-term**: bot-vs-bot simulations, machine learning and deep learning to find the best moves per game state,
   especially in the endgame (owner, 2026-10-19).
 

@@ -246,6 +246,16 @@ Two use cases, two commands:
   personal data (emails: [GDPR](https://www.cnil.fr/fr/reglement-europeen-protection-donnees)). To discuss before building:
   timing (before or after `v0.1.0`), email + password vs. passwordless login links or "Sign in with Google/Discord",
   guest play, and what happens to bots and spectators.
+- **Database: [SQLite](https://www.sqlite.org/whentouse.html)** (2026-10-23, owner): one file on a
+  [Fly volume](https://fly.io/docs/volumes/overview/). The data is relational (accounts, unique pseudos, games, results,
+  leaderboards) and there is exactly one machine, so no separate database service, account or bill.
+  MongoDB (suggested by a friend) was considered: a hosted Atlas cluster adds an outside service and a network round trip per query.
+- **Emails with [Resend](https://resend.com/docs), analytics with [Simple Analytics](https://docs.simpleanalytics.com/)**
+  (2026-10-23, owner, suggested by a friend): not needed for `v0.1.0`, but wanted soon after. Resend sends account emails
+  (verification, password reset). Simple Analytics has no cookies and is GDPR-friendly. Check both prices against the hosting budget.
+- **"What's new" modal** (2026-10-23, owner): when a player comes to the site after a new feature was released, a modal lists
+  what changed since their last visit. Needs a short changelog per release (English and French) and the last version each
+  player has seen (on their account, or in the browser for guests). To design with accounts.
   - Suit symbols **filled** (black or red); the abstract court patterns stay outlined.
   - Player names stay **upright** (readable) while their cards face the centre. Room next to the name may hold the profile picture later.
   - **Ranking** (bottom left): one empty slot per player from 1st to last, filled from the bottom each time a player is eliminated.
