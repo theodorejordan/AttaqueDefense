@@ -3,6 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { clearError, useConnection } from './connection.ts';
 import { LANGUAGES, type Language, getLanguage, setLanguage, t } from './i18n/index.ts';
 import { Lobby } from './lobby/Lobby.tsx';
+import { Table } from './table/Table.tsx';
 
 const ERROR_SHOWN_MS = 5_000;
 
@@ -28,12 +29,12 @@ export function App() {
 
   let screen;
   if (!room) screen = <p class="screen-message caption">{t.app.connecting}</p>;
-  else if (room.game) screen = <GameInProgress />;
+  else if (room.game) screen = <Table room={room} />;
   else screen = <Lobby room={room} chat={chat} />;
 
   return (
     <>
-      <header class="topbar">
+      <header class={room?.game ? 'topbar over-table' : 'topbar'}>
         <span class="wordmark">AttaqueDéfense</span>
         <div class="seg" role="group" aria-label={t.app.language}>
           {LANGUAGES.map((option) => (
@@ -52,15 +53,5 @@ export function App() {
       )}
       {room && !connected && <div class="toast">{t.app.connecting}</div>}
     </>
-  );
-}
-
-/** Until the table exists (step 4d), games are played on the debug page. The seat follows: same tab, same token. */
-function GameInProgress() {
-  return (
-    <main class="screen-message">
-      <p>{t.app.gameInProgress}</p>
-      <a href="/debug.html">{t.app.openDebug}</a>
-    </main>
   );
 }

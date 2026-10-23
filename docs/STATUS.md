@@ -1,6 +1,6 @@
 # Status
 
-Last updated: 2026-10-22. Update this file whenever a step starts or ends, or a discussion is settled.
+Last updated: 2026-10-23. Update this file whenever a step starts or ends, or a discussion is settled.
 
 ## Roadmap
 
@@ -9,7 +9,7 @@ Last updated: 2026-10-22. Update this file whenever a step starts or ends, or a 
 | 1 | Scaffold (TypeScript, Vite, Vitest) | Done |
 | 2 | Game engine + tests + random bot + simulations | Done |
 | 3 | Server: lobby, "Add bot", filtered views, spectators, reconnection, disconnection timeout, multi-tab dev mode, debug page | Done (2026-10-19) |
-| 4 | Visual style discussion with mockups → desktop UI | In progress (mockups done, UI next) |
+| 4 | Visual style discussion with mockups → desktop UI | In progress (4a–4d done, 4e next) |
 | 5 | Launch commands: `npm start` (LAN + QR code), online hosting on Fly.io (decided 2026-10-22; tunnel's fate open) | To do. `v0.1.0` = first playable version |
 | 6 | Mobile pass | To do |
 | 7 | Smarter bots (difficulty levels) | To do |
@@ -25,7 +25,8 @@ Last updated: 2026-10-22. Update this file whenever a step starts or ends, or a 
    To design when building: in-game chat (bottom right), pause / preferences menu (damage preference moves there).
    Step 4 sub-steps (plan approved 2026-10-22): 4a server side (flip, "looking at", chat) **done**; 4b basics (Preact,
    colours, self-hosted fonts, Card piece, texts) **done**; 4c lobby **done**
-   (games are played on `/debug.html` until 4d); next 4d table, 4e chat and panels, 4f animations, 4g end of game.
+   **4d table done** (2026-10-23; games are now played on `/`); next 4e chat and panels, 4f animations, 4g end of game.
+   Until 4e, the damage preference and the game log are only on `/debug.html`.
 
 ## Pending discussions (owner input needed)
 - **Lobby settings**: settled (2026-10-19), nothing more than hunters, number of decks and max munitions.

@@ -1,0 +1,264 @@
+/* The game table: seats placed by layout.ts, the centre column, outlines (docs/DECISIONS.md > UI > Visual style). */
+.table {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* A seat is placed and turned by its inline style; every size inside follows --w, the card width. */
+.seat {
+  position: absolute;
+}
+
+.seat-cards {
+  display: flex;
+  align-items: flex-end;
+  gap: calc(var(--w) * 0.2);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  outline: 2px solid transparent;
+  outline-offset: 8px;
+  cursor: pointer;
+}
+
+.seat-cards:disabled {
+  cursor: default;
+}
+
+/* Grey for whose turn it is, brown for a hunter, black for the player being looked at. */
+.seat-cards.outline-turn {
+  outline-color: var(--outline-turn);
+}
+
+.seat-cards.outline-hunter {
+  outline-color: var(--outline-hunter);
+}
+
+.seat-cards.outline-look {
+  outline: 1.5px solid var(--outline-look);
+}
+
+.seat-cards:enabled:hover:not(.outline-look),
+.seat-cards:focus-visible:not(.outline-look) {
+  outline: 1.5px dashed var(--outline-look);
+}
+
+/* The defence lies across the top of the life cards, on the centre side, and covers part of them. */
+.hand {
+  position: relative;
+  padding-top: calc(var(--w) * 0.65);
+}
+
+.defence {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
+}
+
+.life {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--w) * 0.1);
+  /* A hunter has no cards left: keep a seat-sized space for the outline. */
+  min-width: var(--w);
+  min-height: calc(var(--w) * 1.4);
+}
+
+.munitions {
+  position: relative;
+  width: calc(var(--w) * (1 + 0.12 * (var(--count) - 1)));
+  height: calc(var(--w) * 1.4);
+}
+
+.munitions > div {
+  position: absolute;
+  top: 0;
+}
+
+/* Your 4 face-down cards while you pick your defence. */
+.dealt-card {
+  padding: 0;
+  border: none;
+  border-radius: calc(var(--w) * 0.08);
+  background: none;
+  cursor: pointer;
+  transition: transform 120ms ease-out;
+}
+
+.dealt-card:hover,
+.dealt-card:focus-visible {
+  transform: translateY(-10px);
+}
+
+.dealt-card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* A point just under the cards; the upright name hangs from it, away from the centre (Seat.tsx). */
+.seat-name-anchor {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  width: 0;
+  height: 0;
+}
+
+.seat-name {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.seat-name .avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  font-size: 10px;
+}
+
+.seat-player {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.seat-player.you {
+  font-weight: 600;
+}
+
+/* The middle: deck and side pot, then the centre text, then the action buttons. Sizes follow --pile-w. */
+.centre-anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.centre {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  transform: translate(-50%, -50%);
+}
+
+.piles {
+  position: relative;
+  display: flex;
+  gap: calc(var(--pile-w) * 0.55);
+  /* Room for the drawn card when it lifts on your side, between the piles and the text. */
+  margin-bottom: calc(var(--pile-w) * 1.2);
+}
+
+.pile {
+  position: relative;
+  width: var(--pile-w);
+  height: calc(var(--pile-w) * 1.4);
+  padding: 0;
+  border: none;
+  border-radius: calc(var(--pile-w) * 0.08);
+  background: none;
+  cursor: pointer;
+  transition: transform 120ms ease-out;
+}
+
+.pile:disabled {
+  cursor: default;
+}
+
+.pile:enabled:hover,
+.pile:focus-visible {
+  transform: translateY(-4px);
+}
+
+.pile:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.pile-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.pile-empty {
+  position: absolute;
+  inset: 0;
+  border: 1.5px dashed var(--line);
+  border-radius: inherit;
+}
+
+/* The drawn card floats over the piles, highlighted, on the active player's side (placed by its inline transform). */
+.drawn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+}
+
+.drawn-float {
+  border-radius: calc(var(--pile-w) * 0.08);
+  box-shadow:
+    0 0 0 2px var(--ink),
+    0 0 0 9px var(--glow),
+    0 0 36px 14px var(--glow),
+    0 24px 44px rgb(0 0 0 / 0.4);
+  animation: drawn-float 2.8s ease-in-out infinite;
+}
+
+@keyframes drawn-float {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawn-float {
+    animation: none;
+  }
+}
+
+.prompt {
+  margin: 0;
+  font-size: 15px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.prompt-main {
+  font-weight: 600;
+}
+
+.prompt-sub {
+  color: var(--muted);
+}
+
+/* Kept even when empty, so the centre does not jump when the buttons appear. */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.btn.action {
+  height: 44px;
+  padding: 0 20px;
+  background: var(--felt);
+  font-size: 15px;
+}

@@ -139,6 +139,20 @@
   padding: 14px 24px;
 }
 
+/* During a game the bar floats over the table, which takes the whole screen. */
+.topbar.over-table {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.topbar.over-table > * {
+  pointer-events: auto;
+}
+
 .wordmark {
   font-size: 17px;
   font-weight: 600;

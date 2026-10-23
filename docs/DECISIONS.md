@@ -223,6 +223,20 @@ Two use cases, two commands:
   until the table exists (same tab = same seat). Lobby as mocked; the chat panel sits under the settings (right column).
   Joining uses a **temporary name field** until accounts exist. `RoomView.spectatorCount` counts tabs without a seat.
   Every screen reads the server state through `src/client/connection.ts`; refused requests show as a short message.
+- **Step 4d, table** (2026-10-23, owner): the table fills the window and the top bar floats over it.
+  - **Fits the window**: the oval is computed from the measured table size
+    ([`ResizeObserver`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver)). Cards keep the mockup sizes on a
+    1440 × 900 screen or bigger and shrink in proportion on a smaller one. Chosen over scaling a fixed 1440 × 900 picture
+    (empty bands, text shrinking, a rewrite for the mobile pass).
+  - **Defence choice**: your 4 face-down cards at your seat, "Pick your defence" in the centre, click one. Other seats show
+    4 face-down cards, then a face-down defence and 3 life cards once that player has chosen; all are revealed together.
+  - "Looking at" is drawn from the server's `lookingAt` only, so every screen shows the same outline. Click a seat to look
+    at it; click it again, click the empty table or press Esc to stop. Allowed actions come from the engine's `playsFor`.
+  - You at the bottom; once you are eliminated (or for a spectator), the next player still in the game takes the bottom seat.
+    A hunter stays at the table during their hunter turn.
+  - Tags next to names: bot, away (disconnected; eliminated after 1 minute if the game waits for them, RULES 10),
+    playing / your turn, Hunter.
+  - Until 4g, a finished game shows the winner in the centre text and a "Back to lobby" button for the host.
 
 ## Accounts (2026-10-22, owner, to design later)
 
