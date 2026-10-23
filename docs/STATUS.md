@@ -28,7 +28,78 @@ Last updated: 2026-10-23. Update this file whenever a step starts or ends, or a 
    shown on the target, game log panel (actions only), bigger table on big screens, chosen defences shown at once, and the
    attack playback (lands on the defence, 2 s pause, then the life cards change).
    **4e done** (2026-10-23): chat always open with speech bubbles, Menu (damage preference, How to play, Leave the game),
-   ranking. Debug page deleted. Next: 4f animations (no card ever teleports), 4g end of game.
+   ranking. Debug page deleted. Next: 4f animations, then 4g end of game: see "Step 4: what's left" below.
+
+## Step 4: what's left (written 2026-10-23, to pick up in a later session)
+
+Everything below is agreed unless marked **open**. Decisions live in `DECISIONS.md` > UI (sections named here), not repeated.
+
+### 4f, animations: no card ever teleports
+Decided: `DECISIONS.md` > UI > Animations (every bullet, including "No card ever teleports", "Attack timing",
+"Playback", "Elimination", "Changing a defence") and Visual style round 3 (side pot flip).
+
+Every card move to animate, with the event that triggers it (`GameEvent` in `src/engine/state.ts`):
+
+| Event | Flight |
+|---|---|
+| `drew` | top of the deck → drawn spot, lifted on the active player's side |
+| `attacked` | drawn card **and every munition of the attacker** fly together, flip face-up, land tilted on the target's defence |
+| (attack, +2 s) `damaged` | removed life cards → side pot; replacement card(s) ← side pot or deck (the replacement animation, may be longer) |
+| `munitionsLost`, destroyed defence | → side pot, after the attack cards leave the target |
+| attack cards | → side pot when they leave the target (they are kept out of it until then, already done in `playback.ts`) |
+| `munitionGiven` | drawn card flies face-down onto the target's munition stack |
+| `shieldPlaced` | drawn card flips face-up onto the defence spot; the replaced defence → side pot |
+| `eliminated` (also after `timedOut`, `left`) | all their cards → side pot, short death animation, then the other seats slide to their new places |
+| `deckFlipped` | the side pot flips over and slides to the deck spot |
+| `gameStarted` / setup | the deal: 4 face-down cards to each player, clockwise |
+| `hunterTurn` | nothing flies; the hunter stays seated (already done) |
+
+Technical approach to discuss and approve first (the main design choice of 4f):
+- **How a flight finds its start and end on screen.** Recommended: the [FLIP technique](https://aerotwist.com/blog/flip-your-animations/)
+  (measure the card's place before and after with `getBoundingClientRect`, then animate the difference), with flying copies
+  in an overlay layer above the table while the real spots stay hidden. Seats are rotated, so measuring the DOM is simpler
+  than recomputing positions from `layout.ts`. Face-up cards can be tracked by `cardKey` (unique even with two decks);
+  face-down ones (deck, munitions, the hidden drawn card) need made-up keys such as "B's 2nd munition".
+- **Open: CSS only, or the [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)?**
+  `DECISIONS.md` says plain CSS, no library. The Web Animations API is built into browsers (not a library) and makes
+  chaining flights and knowing when they end much easier. Ask the owner.
+- **Replacement source**: `damaged` gives the life cards before and after, not where the new card came from. The client
+  can tell: if it was in the side pot shown before, it came from there, otherwise from the bottom of the deck (RULES 6.1).
+- **Timings grow**: each move now has a playback length, not only attacks. Replace `ATTACK_PLAYBACK_MS` with a shared
+  function (events → milliseconds) in `src/shared/timing.ts`, used by `playback.ts` and by the server's bot pacing
+  (`#scheduleBot` in `room.ts`), so screens never fall behind the bots.
+- **Seats sliding** after an elimination: a CSS transition on each seat's `left`, `top` and `transform` may be enough.
+- Respect [`prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion):
+  shorter or simpler motion, same order.
+- **Open: the death animation** ("small", owner). Show 2–3 ideas (mockup or quick prototype) before building.
+- Testing: playback frames stay pure and unit-tested (`playback.test.ts`); motion is checked by eye. A headless Chrome
+  screenshot script was used in this session (scratchpad, not in the repo); a dev page that replays a sample game
+  without the server could help, like `gallery.html`.
+
+### 4g, end of game
+Decided: `DECISIONS.md` > UI > "Lobby and end of game, mockup" (modal over the table, winner, final ranking, fun
+statistics from the public log, Play again and Quit, "You left the table" screen). Today a finished game only shows
+"X wins" in the centre text and a host-only "Back to lobby" (`Centre.tsx`).
+- The modal opens once the playback has shown the last move (after the final attack and elimination).
+- Statistics, all from the public log: biggest hit, most munitions given, defence that stopped the most attacks,
+  most attacked, fastest exit. **Open: exact definitions** (e.g. "fastest exit" = first eliminated, or fewest turns
+  played? A defence is followed by its `cardKey` while it stays in place). Pure function + tests.
+- **Open: who presses Play again?** The server's `backToLobby` is host-only today. Options: anyone sends everyone back;
+  only the host (others see "Waiting for the host"); or each player marks themselves ready.
+- Quit after the game: frees the seat and shows "You left the table". New server handling (`leave` only works in the
+  lobby today; `leaveGame` refuses a finished game).
+- No winner (out of cards): same modal, "No cards left".
+- Spectators: the modal without Play again.
+- Then step 4 is done: update the roadmap, then step 5 (`npm start` on LAN, Fly.io, `v0.1.0`).
+
+### Loose ends from this session
+- **Open**: on a big screen, should the top bar and the Game log / Menu panels scale like the table? (asked, no answer yet)
+- **Open**: four UI bullets (filled suits, upright names, ranking, no preselected player) sit by mistake under
+  `DECISIONS.md` > Accounts; move them back to UI? (asked, no answer yet)
+- The owner should read the How to play texts (`menu.rules` in `src/client/i18n/en.ts` and `fr.ts`), written from RULES.md.
+- Not seen yet on screen: other players' defences appearing during the defence choice, and a player knocked out by an
+  attack staying seated until the attack ends. Check in the next real game.
+- While open, the Game log and Menu panels cover the top-right player's cards.
 
 ## Pending discussions (owner input needed)
 - **Lobby settings**: settled (2026-10-19), nothing more than hunters, number of decks and max munitions.
