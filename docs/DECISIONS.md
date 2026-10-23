@@ -124,6 +124,12 @@ Two use cases, two commands:
      Clicking a button sends the move. No confirmation step: selecting the player is the safety net.
   - The buttons never cover a player's area: other players' cards must stay visible.
 - **Animations** (2026-10-19): sober, plain CSS ([3D transforms](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_transforms/Using_CSS_transforms)), no library.
+  - **How cards fly** (2026-10-23, step 4f, owner left the choice to Claude): the
+    [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API) (`element.animate()`), built into
+    browsers, so still no library: unlike CSS transitions, each flight returns a promise when it ends, which makes chaining
+    flights simple. Positions with the [FLIP technique](https://aerotwist.com/blog/flip-your-animations/): measure where a card
+    is before and after (`getBoundingClientRect`, so rotated seats need no extra maths), and fly a copy in an overlay layer
+    above the table while the real spot stays hidden.
   - Attack: the attack cards flip in the air and land on the target (mostly on the defence), then stay 3–4 s while life points update.
   - Defence: the card flips face-up onto the target's defence spot. Munition: it slides face-down onto the target's munition stack.
   - **Changing a defence** (owner, 2026-10-23, step 4f): the old defence also needs its animation: the new card lands on the
@@ -215,6 +221,11 @@ Two use cases, two commands:
     the deck to draw as usual. Chosen over a single click (flip + draw together) because it is a fun table moment.
     Code impact (step 4): new engine command (e.g. `flip`), legal only for the player who must draw, before drawing, with an
     empty deck; `draw` then refuses an empty deck. Bots and the 1-minute disconnection wait cover it like any other action.
+  - Suit symbols **filled** (black or red); the abstract court patterns stay outlined.
+  - Player names stay **upright** (readable) while their cards face the centre. Room next to the name may hold the profile picture later.
+  - **Ranking** (bottom left): one empty slot per player from 1st to last, filled from the bottom each time a player is eliminated.
+  - **No player preselected** after drawing. The centre text guides the turn: "Your turn · Pick a player", then
+    "Pick an action for B". The three action buttons appear only once a player is picked.
 - **Lobby and end of game, mockup** (2026-10-22, owner):
   - **Lobby**, same visual style: players on the left (name, you / host / bot tags, "Remove" on bots for the host,
     "Add bot", spectator count), game settings on the right (hunters, decks with the allowed choices, max munitions),
@@ -279,6 +290,11 @@ Two use cases, two commands:
   - **Ranking** (bottom left): as mocked, filled from the bottom in elimination order (from the log, following the playback);
     the winner takes 1st at the end. Ordinals with `Intl.PluralRules` (`type: 'ordinal'`) in English, "1er, 2e…" in French.
   - The step 3 debug page is deleted: the table covers everything it did.
+- **After 4e** (2026-10-23, owner):
+  - **Big screens**: the top bar and the Game log / Menu panels scale like the table (same factor as the cards), not only the table.
+  - **End of game, fastest exit**: the player eliminated after playing the **fewest turns** (not simply the first one out).
+  - **End of game, Play again**: **anyone** can press it. It takes only that player back to the lobby; the others keep the
+    end-of-game screen until they press Play again or Quit. The host stays the host.
 
 ## Accounts (2026-10-22, owner, to design later)
 
@@ -298,11 +314,6 @@ Two use cases, two commands:
 - **"What's new" modal** (2026-10-23, owner): when a player comes to the site after a new feature was released, a modal lists
   what changed since their last visit. Needs a short changelog per release (English and French) and the last version each
   player has seen (on their account, or in the browser for guests). To design with accounts.
-  - Suit symbols **filled** (black or red); the abstract court patterns stay outlined.
-  - Player names stay **upright** (readable) while their cards face the centre. Room next to the name may hold the profile picture later.
-  - **Ranking** (bottom left): one empty slot per player from 1st to last, filled from the bottom each time a player is eliminated.
-  - **No player preselected** after drawing. The centre text guides the turn: "Your turn · Pick a player", then
-    "Pick an action for B". The three action buttons appear only once a player is picked.
 
 ## Repository and versioning (2026-10-16)
 

@@ -60,9 +60,8 @@ Technical approach to discuss and approve first (the main design choice of 4f):
   in an overlay layer above the table while the real spots stay hidden. Seats are rotated, so measuring the DOM is simpler
   than recomputing positions from `layout.ts`. Face-up cards can be tracked by `cardKey` (unique even with two decks);
   face-down ones (deck, munitions, the hidden drawn card) need made-up keys such as "B's 2nd munition".
-- **Open: CSS only, or the [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)?**
-  `DECISIONS.md` says plain CSS, no library. The Web Animations API is built into browsers (not a library) and makes
-  chaining flights and knowing when they end much easier. Ask the owner.
+  **Approved 2026-10-23**, with the [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)
+  (`DECISIONS.md` > UI > Animations > How cards fly).
 - **Replacement source**: `damaged` gives the life cards before and after, not where the new card came from. The client
   can tell: if it was in the side pot shown before, it came from there, otherwise from the bottom of the deck (RULES 6.1).
 - **Timings grow**: each move now has a playback length, not only attacks. Replace `ATTACK_PLAYBACK_MS` with a shared
@@ -82,10 +81,10 @@ statistics from the public log, Play again and Quit, "You left the table" screen
 "X wins" in the centre text and a host-only "Back to lobby" (`Centre.tsx`).
 - The modal opens once the playback has shown the last move (after the final attack and elimination).
 - Statistics, all from the public log: biggest hit, most munitions given, defence that stopped the most attacks,
-  most attacked, fastest exit. **Open: exact definitions** (e.g. "fastest exit" = first eliminated, or fewest turns
-  played? A defence is followed by its `cardKey` while it stays in place). Pure function + tests.
-- **Open: who presses Play again?** The server's `backToLobby` is host-only today. Options: anyone sends everyone back;
-  only the host (others see "Waiting for the host"); or each player marks themselves ready.
+  most attacked, fastest exit (= fewest turns played, owner 2026-10-23). A defence is followed by its `cardKey` while it
+  stays in place. Pure function + tests.
+- **Play again** (owner, 2026-10-23): anyone can press it; it takes only that player back to the lobby, the others keep
+  the modal; the host stays the host. The server's `backToLobby` is host-only today: to rework.
 - Quit after the game: frees the seat and shows "You left the table". New server handling (`leave` only works in the
   lobby today; `leaveGame` refuses a finished game).
 - No winner (out of cards): same modal, "No cards left".
@@ -93,10 +92,8 @@ statistics from the public log, Play again and Quit, "You left the table" screen
 - Then step 4 is done: update the roadmap, then step 5 (`npm start` on LAN, Fly.io, `v0.1.0`).
 
 ### Loose ends from this session
-- **Open**: on a big screen, should the top bar and the Game log / Menu panels scale like the table? (asked, no answer yet)
-- **Open**: four UI bullets (filled suits, upright names, ranking, no preselected player) sit by mistake under
-  `DECISIONS.md` > Accounts; move them back to UI? (asked, no answer yet)
-- The owner should read the How to play texts (`menu.rules` in `src/client/i18n/en.ts` and `fr.ts`), written from RULES.md.
+- **To do**: on a big screen, the top bar and the Game log / Menu panels scale like the table (owner, 2026-10-23).
+- How to play texts: fine for now (owner, 2026-10-23).
 - Not seen yet on screen: other players' defences appearing during the defence choice, and a player knocked out by an
   attack staying seated until the attack ends. Check in the next real game.
 - While open, the Game log and Menu panels cover the top-right player's cards.
