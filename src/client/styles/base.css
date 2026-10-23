@@ -27,6 +27,9 @@
 
   --font-ui: 'Inter Tight', system-ui, sans-serif;
   --font-card: 'Outfit', system-ui, sans-serif;
+
+  /* Above 1 on a large screen while the table is shown (set by Table.tsx): the table, the top bar and its panels grow. */
+  --text-scale: 1;
 }
 
 body {

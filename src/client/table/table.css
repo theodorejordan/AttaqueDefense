@@ -1,5 +1,5 @@
 /* The game table: seats placed by layout.ts, the centre column, outlines (docs/DECISIONS.md > UI > Visual style).
-   --text-scale (set by Table.tsx) makes the table's text grow on a large screen. */
+   --text-scale (set on the page root by Table.tsx) makes the table's text grow on a large screen. */
 .table {
   position: fixed;
   inset: 0;
@@ -403,10 +403,31 @@
   width: min(calc(340px * var(--text-scale)), calc(100vw - 48px));
 }
 
-.table-chat .chat-messages {
-  height: calc(120px * var(--text-scale));
+.table-chat .chat,
+.table-chat .chat-form {
+  gap: calc(8px * var(--text-scale));
 }
 
-.table-chat .chat-message {
+.table-chat .chat-messages {
+  height: calc(120px * var(--text-scale));
+  padding: calc(12px * var(--text-scale)) calc(14px * var(--text-scale));
+}
+
+.table-chat .chat-message,
+.table-chat .caption {
   font-size: calc(13px * var(--text-scale));
+}
+
+.table-chat .text-input,
+.table-chat .btn {
+  height: calc(40px * var(--text-scale));
+  font-size: calc(14px * var(--text-scale));
+}
+
+.table-chat .text-input {
+  padding: 0 calc(12px * var(--text-scale));
+}
+
+.table-chat .btn {
+  padding: 0 calc(16px * var(--text-scale));
 }

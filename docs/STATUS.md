@@ -92,7 +92,7 @@ statistics from the public log, Play again and Quit, "You left the table" screen
 - Then step 4 is done: update the roadmap, then step 5 (`npm start` on LAN, Fly.io, `v0.1.0`).
 
 ### Loose ends from this session
-- **To do**: on a big screen, the top bar and the Game log / Menu panels scale like the table (owner, 2026-10-23).
+- Done: on a big screen, the top bar and the Game log / Menu panels scale like the table (owner, 2026-10-23).
 - How to play texts: fine for now (owner, 2026-10-23).
 - Not seen yet on screen: other players' defences appearing during the defence choice, and a player knocked out by an
   attack staying seated until the attack ends. Check in the next real game.

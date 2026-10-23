@@ -15,13 +15,14 @@
   cursor: not-allowed;
 }
 
-/* Top bar buttons: lighter, like the language switch. aria-pressed: the panel it opens is open. */
+/* Top bar buttons: lighter, like the language switch. aria-pressed: the panel it opens is open.
+   Sizes in the top bar and its panels follow --text-scale (base.css), like the table. */
 .btn-small {
-  height: 34px;
-  padding: 0 14px;
+  height: calc(34px * var(--text-scale));
+  padding: 0 calc(14px * var(--text-scale));
   border-width: 1px;
   border-color: var(--line);
-  font-size: 13px;
+  font-size: calc(13px * var(--text-scale));
 }
 
 .btn-small[aria-pressed='true'] {
@@ -31,18 +32,33 @@
 /* A panel opened from the top bar (game log, menu): under it on the right, over the table. One at a time. */
 .side-panel {
   position: fixed;
-  top: 64px;
-  right: 24px;
+  top: calc(64px * var(--text-scale));
+  right: calc(24px * var(--text-scale));
   z-index: 2;
   box-sizing: border-box;
-  width: min(380px, calc(100vw - 32px));
-  max-height: min(70vh, 640px);
+  width: min(calc(380px * var(--text-scale)), calc(100vw - 32px));
+  max-height: min(70vh, calc(640px * var(--text-scale)));
   overflow-y: auto;
-  padding: 14px 16px;
+  padding: calc(14px * var(--text-scale)) calc(16px * var(--text-scale));
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--felt);
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+}
+
+.side-panel .btn {
+  height: calc(40px * var(--text-scale));
+  padding: 0 calc(16px * var(--text-scale));
+  font-size: calc(14px * var(--text-scale));
+}
+
+.side-panel .btn-link {
+  height: calc(32px * var(--text-scale));
+  font-size: calc(13px * var(--text-scale));
+}
+
+.side-panel .caption {
+  font-size: calc(13px * var(--text-scale));
 }
 
 .btn-primary {
@@ -78,19 +94,19 @@
   display: inline-flex;
   flex-wrap: wrap;
   gap: 2px;
-  padding: 3px;
-  border-radius: 10px;
+  padding: calc(3px * var(--text-scale));
+  border-radius: calc(10px * var(--text-scale));
   border: 1px solid var(--line);
 }
 
 .seg button {
-  height: 34px;
-  padding: 0 12px;
-  border-radius: 7px;
+  height: calc(34px * var(--text-scale));
+  padding: 0 calc(12px * var(--text-scale));
+  border-radius: calc(7px * var(--text-scale));
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);
-  font: 500 14px var(--font-ui);
+  font: 500 calc(14px * var(--text-scale)) var(--font-ui);
   cursor: pointer;
 }
 
@@ -166,7 +182,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 24px;
+  padding: calc(14px * var(--text-scale)) calc(24px * var(--text-scale));
 }
 
 /* During a game the bar floats over the table, which takes the whole screen. */
@@ -186,11 +202,11 @@
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: calc(10px * var(--text-scale));
 }
 
 .wordmark {
-  font-size: 17px;
+  font-size: calc(17px * var(--text-scale));
   font-weight: 600;
   letter-spacing: -0.01em;
 }

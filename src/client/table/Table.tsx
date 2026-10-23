@@ -58,6 +58,14 @@ export function Table({ room: latest, log, chat }: { room: RoomView; log: GameEv
   const kept = [turn?.isHunter ? turn.player : null, attack?.target ?? null].filter((id) => id !== null);
   const layout = tableLayout(seatingOrder(game.players, you, kept), size);
   const players = new Map(game.players.map((p) => [p.id, p]));
+
+  // Text grows with the table on a large screen, but never shrinks below its normal size. Set on the page root so the
+  // top bar and its panels, drawn outside the table, grow too; back to the default (1, base.css) when the table closes.
+  const textScale = Math.max(1, layout.scale);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--text-scale', String(textScale));
+  }, [textScale]);
+  useEffect(() => () => document.documentElement.style.removeProperty('--text-scale'), []);
   const nameOf = (id: PlayerId) => players.get(id)?.name ?? id;
   const choosing = game.phase === 'choosingShields';
 
@@ -87,8 +95,6 @@ export function Table({ room: latest, log, chat }: { room: RoomView; log: GameEv
     <main
       class="table"
       ref={box}
-      // Text grows with the table on a large screen, but never shrinks below its normal size.
-      style={{ '--text-scale': Math.max(1, layout.scale) }}
       onClick={(event) => {
         if (picking && lookingAt !== null && event.target === event.currentTarget) look(null);
       }}

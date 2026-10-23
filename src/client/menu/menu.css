@@ -2,48 +2,48 @@
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: calc(16px * var(--text-scale));
 }
 
 .menu h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: calc(16px * var(--text-scale));
   font-weight: 600;
 }
 
 .menu p {
   margin: 0;
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   line-height: 1.45;
 }
 
 .menu-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: calc(8px * var(--text-scale));
 }
 
 .menu-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: calc(10px * var(--text-scale));
 }
 
 .preference-options {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: calc(6px * var(--text-scale));
 }
 
 /* One choice: its name and what it does. The chosen one has aria-pressed="true". */
 .preference-option {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 8px 12px;
+  gap: calc(2px * var(--text-scale));
+  padding: calc(8px * var(--text-scale)) calc(12px * var(--text-scale));
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: calc(8px * var(--text-scale));
   background: transparent;
   color: var(--ink);
   font: inherit;
@@ -61,7 +61,7 @@
 }
 
 .preference-name {
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   font-weight: 600;
 }
 
@@ -72,6 +72,6 @@
 
 .rule h3 {
   margin: 0 0 2px;
-  font-size: 14px;
+  font-size: calc(14px * var(--text-scale));
   font-weight: 600;
 }
